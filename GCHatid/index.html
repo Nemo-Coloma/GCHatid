@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GCHatid</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 400px; margin: auto; }
+        form { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        h2 { text-align: center; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box;
+        }
+        button { margin-top: 15px; width: 100%; padding: 10px; }
+        .link { text-align: center; margin-top: 10px; }
+        .link a { color: #007bff; text-decoration: none; }
+        .link a:hover { text-decoration: underline; }
+        /* Leaflet map container style */
+        #map { height: 300px; width: 100%; margin-top: 20px; display: none; }
+    </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+    <script type="module">
+        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBeAfKyFcedf7z5vcPE-c9fKjpAMQyIhG4",
+            authDomain: "gchatid.firebaseapp.com",
+            databaseURL: "https://gchatid-default-rtdb.firebaseio.com",
+            projectId: "gchatid",
+            storageBucket: "gchatid.firebasestorage.app",
+            messagingSenderId: "32555305185",
+            appId: "1:32555305185:web:8a6c642eb34f1c4cde8fa0",
+            measurementId: "G-7T9YKPF5NW"
+        };
+
+        
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+
+        
+        function firebaseSignUp(email, password) {
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(userCredential => {
+                    alert("User created: " + userCredential.user.email);
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+
+        
+        function firebaseLogin(email, password) {
+            signInWithEmailAndPassword(auth, email, password)
+                .then(userCredential => {
+                    alert("Logged in: " + userCredential.user.email);
+                    showMap();
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+
+        // Firebase Logout
+        function firebaseLogout() {
+            signOut(auth).then(() => {
+                alert("Logged out");
+            });
+        }
+
+        // Auth State Listener
+        onAuthStateChanged(auth, user => {
+            // You can update UI here if needed
+            // Example: console.log(user ? "Logged in" : "Not logged in");
+        });
+
+        // DOM event handlers
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('showSignIn').onclick = function(e) {
+                e.preventDefault();
+                document.getElementById('createAccountForm').style.display = 'none';
+                document.querySelector('.link').style.display = 'none';
+                document.getElementById('signInForm').style.display = 'block';
+            };
+
+            document.getElementById('createAccountForm').onsubmit = function(e) {
+                e.preventDefault();
+                const email = document.getElementById('newEmail').value;
+                const password = document.getElementById('newPassword').value;
+                firebaseSignUp(email, password);
+            };
+
+            document.getElementById('signInForm').onsubmit = function(e) {
+                e.preventDefault();
+                const email = document.getElementById('signInEmail').value;
+                const password = document.getElementById('signInPassword').value;
+                firebaseLogin(email, password);
+            };
+        });
+
+        // Show map after successful login
+        function showMap() {
+            document.getElementById('map').style.display = 'block';
+            if (!window._leafletMapInitialized) {
+                const map = L.map('map').setView([51.505, -0.09], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                window._leafletMapInitialized = true;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <form id="createAccountForm">
+            <h2>Create Account</h2>
+            <label for="newEmail">Email:</label>
+            <input type="email" id="newEmail" name="newEmail" required>
+            <label for="newPassword">Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+            <button type="submit">Create Account</button>
+        </form>
+        <div class="link">
+            Already have an account? <a href="#" id="showSignIn">Sign in</a>
+        </div>
+        <form id="signInForm" style="display:none;">
+            <h2>Sign In</h2>
+            <label for="signInEmail">Email:</label>
+            <input type="email" id="signInEmail" name="signInEmail" required>
+            <label for="signInPassword">Password:</label>
+            <input type="password" id="signInPassword" name="signInPassword" required>
+            <button type="submit">Sign In</button>
+        </form>
+        <div id="map"></div>
+    </div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
