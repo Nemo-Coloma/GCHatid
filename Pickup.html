@@ -1,174 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Options Page</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cal+Sans&family=Geologica:wght@100..900&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=League+Gothic&family=Montserrat:ital,wght@0,100..900;1,100..900&family=National+Park:wght@200..800&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: #f5f5f5;
-    }
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(26,38,48, 0.98);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      display: flex;
-      gap: 32px;
-      padding: 32px;
-    }
-    .card {
-      background: #29506a;
-      border-radius: 12px;
-      width: 400px;
-      /* Remove conflicting min-width for uniformity */
-      padding: 36px 32px 32px 32px;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      /* Ensure all children stretch to card width */
-      align-items: stretch;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      min-height: 700px;  
-    }
-    /* Make key elements span full width for alignment */
-    .card-header,
-    .card hr,
-    .card-list,
-    .card-btn {
-      width: 100%;
-    }
-    .card-header {
-      font-size: 56px;
-      font-weight: 700;
-      margin-bottom: 18px;
-      letter-spacing: 1px;
-    }
-    .card hr {
-      border: 0.5px solid #eee;
-      margin: 0 0 90px 0;
-    }
-    .card-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 38px 0;
-    }
-    .card-list li {
-      display: flex;
-      align-items: center;
-      font-size: 20px;
-      margin-bottom: 50px;
-    }
-    .check {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      background: #202b34;
-      color: #fff;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 30px;
-      font-size: 20px;
-      margin-right: 16px;
-    }
-    .cross {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      background: #a75d5d;
-      color: #fff;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 30px;
-      font-size: 20px;
-      margin-right: 16px;
-    }
-    .card-btn {
-      padding: 14px 0;
-      background: #18232b;
-      color: #fff;
-      border: none;
-      border-radius: 24px;
-      font-size: 20px;
-      font-family: 'Montserrat', Arial, sans-serif;
-      cursor: pointer;
-      margin-top: auto;
-      box-shadow: 0 1px 6px #0001;
-      transition: background 0.15s;
-    }
-    .card-btn:hover {
-      background: #1c285a;
-    }
-    @media (max-width: 1200px) {
-      .modal-content {
-        flex-direction: column;
-        gap: 28px;
-        padding: 18px;
-      }
-      .card {
-        width: 90vw;
-        align-items: stretch;
-      }
-      .card-header {
-        font-size: 36px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Selector</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .ride-selector-container {
+            width: 90%;
+            max-width: 900px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 20px 20px 0 0;
+        }
+        .selector-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+        }
+        .selector-half {
+            flex-basis: 50%;
+            padding: 10px 20px;
+        }
+        .selector-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        .location-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .location-option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: #f9f9f9;
+            color: #555;
+            font-size: 1rem;
+        }
+        .location-option:hover {
+            border-color: #007bff;
+            background-color: #e6f2ff;
+        }
+        .location-option.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+        }
+        .vertical-divider {
+            width: 1px;
+            background-color: #ddd;
+            margin: 10px 0;
+        }
+        @media (max-width: 600px) {
+            .selector-row {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .vertical-divider {
+                width: 100%;
+                height: 1px;
+                margin: 15px 0;
+            }
+            .selector-half {
+                padding: 5px 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="infoModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="card">
-        <div class="card-header">Pick-up</div>
-        <hr>
-        <ul class="card-list">
-          <li><span class="check">&#10003;</span> On Gordon College</li>
-          <li><span class="check">&#10003;</span> On Gordon College Annex</li>
-          <li><span class="cross">&#10007;</span> Outside School Campus</li>
-        </ul>
-        <button class="card-btn" id="getRiderBtn">Get Rider</button>
-      </div>
-      <div class="card">
-        <div class="card-header">Choose Location</div>
-        <hr>
-        <ul class="card-list">
-          <li><span class="check">&#10003;</span> Near Gordon College</li>
-          <li><span class="check">&#10003;</span> Near Gordon College Annex</li>
-          <li><span class="cross">&#10007;</span> Far location between campus</li>
-        </ul>
-        <button class="card-btn">Open Map for Location</button>
-      </div>
-      <div class="card">
-        <div class="card-header">GC Pahatid</div>
-        <hr>
-        <ul class="card-list">
-          <li><span class="check">&#10003;</span> Can be carried by motorcycle</li>
-          <li><span class="check">&#10003;</span> Must not be bigger than a helmet</li>
-          <li><span class="cross">&#10007;</span> Oversized and 5kg Overweight</li>
-        </ul>
-        <button class="card-btn">Pahatid Gamit</button>
-      </div>
+    <div class="ride-selector-container">
+        <div id="map"></div>
+        <div class="selector-row">
+            <div class="selector-half">
+                <div class="selector-header">Pick-up Location</div>
+                <div class="location-options" id="locationOptions">
+                    <div class="location-option" data-lat="14.832" data-lng="120.282">Gordon College Main Campus</div>
+                    <div class="location-option" data-lat="14.829" data-lng="120.284">Gordon College ANNEX Campus</div>
+                </div>
+            </div>
+            <div class="vertical-divider"></div>
+            <div class="selector-half">
+                <div class="selector-header">Choose Driver</div>
+                <p style="color: #888;">Select a Pick-up Location first.</p>
+            </div>
+        </div>
     </div>
-  </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('getRiderBtn').onclick = function() {
-        window.location.href = "pickup.html";
-      };
-    });
-  </script>
+    <script>
+        // Initialize Leaflet map
+        const map = L.map('map');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Campus markers
+        const mainLatLng = [14.837753,120.280249];
+        const annexLatLng = [14.832407,120.283448];
+
+        const mainMarker = L.marker(mainLatLng).addTo(map)
+            .bindPopup('Gordon College Main Campus');
+        const annexMarker = L.marker(annexLatLng).addTo(map)
+            .bindPopup('Gordon College ANNEX Campus');
+
+        // Fit map to show both markers
+        const bounds = L.latLngBounds([mainLatLng, annexLatLng]);
+        map.fitBounds(bounds, { padding: [40, 40] });
+
+        // Location selection logic
+        const locationOptions = document.getElementById('locationOptions');
+        locationOptions.addEventListener('click', function(e) {
+            if (e.target.classList.contains('location-option')) {
+                Array.from(locationOptions.children).forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+                let lat, lng;
+                // If Gordon College Main Campus button is clicked, use annexLatLng coordinates
+                if (e.target.textContent.trim() === "Gordon College Main Campus") {
+                    lat = annexLatLng[0];
+                    lng = annexLatLng[1];
+                } else {
+                    lat = parseFloat(e.target.getAttribute('data-lat'));
+                    lng = parseFloat(e.target.getAttribute('data-lng'));
+                }
+                map.setView([lat, lng], 17);
+                if (lat === mainLatLng[0] && lng === mainLatLng[1]) {
+                    mainMarker.openPopup();
+                } else if (lat === annexLatLng[0] && lng === annexLatLng[1]) {
+                    annexMarker.openPopup();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
