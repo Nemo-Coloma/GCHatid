@@ -147,6 +147,57 @@
       }
     }
   </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeAfKyFcedf7z5vcPE-c9fKjpAMQyIhG4",
+      authDomain: "gchatid.firebaseapp.com",
+      databaseURL: "https://gchatid-default-rtdb.firebaseio.com",
+      projectId: "gchatid",
+      storageBucket: "gchatid.firebasestorage.app",
+      messagingSenderId: "32555305185",
+      appId: "1:32555305185:web:8a6c642eb34f1c4cde8fa0",
+      measurementId: "G-7T9YKPF5NW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Login handler
+      const loginForm = document.getElementById('loginForm');
+      loginForm.onsubmit = function(e) {
+        e.preventDefault();
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+        signInWithEmailAndPassword(auth, email, password)
+          .then(userCredential => {
+            window.location.href = "options.html";
+          })
+          .catch(error => {
+            alert(error.message);
+          });
+      };
+
+      // Sign Up handler
+      const signupForm = document.getElementById('signupForm');
+      signupForm.onsubmit = function(e) {
+        e.preventDefault();
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        createUserWithEmailAndPassword(auth, email, password)
+          .then(userCredential => {
+            alert("Sign up successful! You can now log in.");
+            signupForm.reset();
+          })
+          .catch(error => {
+            alert(error.message);
+          });
+      };
+    });
+  </script>
 </head>
 <body>
   <img src="bike.png" alt="Bike" class="bike-bg">
@@ -155,13 +206,21 @@
   </div>
   <div class="circle"></div>
   <div class="container">
-   <div class="container">
-  <div class="title">WELCOME!</div>
-  <div class="input-group">
-    <input class="input-field" type="email" placeholder="Enter Gordon College Domain Email" />
-    <input class="input-field" type="password" placeholder="Enter your Password" />
+    <div class="title">WELCOME!</div>
+    <form id="loginForm">
+      <div class="input-group">
+        <input class="input-field" type="email" id="emailInput" placeholder="Enter Gordon College Domain Email" required />
+        <input class="input-field" type="password" id="passwordInput" placeholder="Enter your Password" required />
+      </div>
+      <button type="submit" class="login-btn">LOGIN</button>
+    </form>
+    <form id="signupForm" style="margin-top:30px;">
+      <div class="input-group">
+        <input class="input-field" type="email" id="signupEmail" placeholder="Sign Up Email" required />
+        <input class="input-field" type="password" id="signupPassword" placeholder="Sign Up Password" required />
+      </div>
+      <button type="submit" class="login-btn">SIGN UP</button>
+    </form>
   </div>
-  <a href="options.html" class="login-btn">LOGIN</a>
-</div>
 </body>
 </html>
