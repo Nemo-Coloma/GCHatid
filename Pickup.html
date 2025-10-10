@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Selector</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Styles from RideSelector.css */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .ride-selector-container {
+            width: 90%;
+            max-width: 900px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .map-container {
+            height: 400px;
+            /* Ensure the iframe fills the container */
+        }
+
+        .selector-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+        }
+
+        .selector-half {
+            flex-basis: 50%;
+            padding: 10px 20px;
+        }
+
+        .selector-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .location-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .location-option {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: #f9f9f9;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .location-option:hover {
+            border-color: #007bff;
+            background-color: #e6f2ff;
+        }
+
+        .location-option.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .vertical-divider {
+            width: 1px;
+            background-color: #ddd;
+            margin: 10px 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .selector-row {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .vertical-divider {
+                width: 100%;
+                height: 1px;
+                margin: 15px 0;
+            }
+            .selector-half {
+                padding: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Your React component code
+        const { useState } = React;
+
+        const locations = [
+            "Gordon College Main Campus",
+            "Gordon College ANNEX Campus"
+        ];
+
+        function RideSelector() {
+            const [selectedLocation, setSelectedLocation] = useState(null);
+
+            return (
+                <div className="ride-selector-container">
+                    <div className="map-container">
+                        {/* Google Maps Embed - NOTE: The 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.578744913982!2d101.64053731476164!3d2.926251497893949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cdcbeadf4ad2e3%3A0xf1d4d8f9e5b7e9b4!2sCyberjaya!5e0!3m2!1sen!2smy!4v1639828810418!5m2!1sen!2smy' URL is a placeholder and may not display a map. Use a proper Google Maps Embed API key or share link for a real map. */}
+                        <iframe
+                            title="Location Map"
+                            width="100%"
+                            height="100%"
+                            frameBorder="0"
+                            style={{ borderRadius: "20px 20px 0 0" }}
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.578744913982!2d101.64053731476164!3d2.926251497893949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cdcbeadf4ad2e3%3A0xf1d4d8f9e5b7e9b4!2sCyberjaya!5e0!3m2!1sen!2smy!4v1639828810418!5m2!1sen!2smy"
+                            allowFullScreen=""
+                            aria-hidden="false"
+                            tabIndex="0"
+                        />
+                    </div>
+                    <div className="selector-row">
+                        <div className="selector-half">
+                            <div className="selector-header">Pick-up Location</div>
+                            <div className="location-options">
+                                {locations.map(loc => (
+                                    <div
+                                        key={loc}
+                                        className={`location-option${selectedLocation === loc ? " selected" : ""}`}
+                                        onClick={() => setSelectedLocation(loc)}
+                                    >
+                                        {loc}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="vertical-divider"></div>
+                        <div className="selector-half">
+                            <div className="selector-header">Choose Driver</div>
+                            {/* Driver selection can go here */}
+                            <p style={{color: '#888'}}>Select a Pick-up Location first.</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the component to the DOM
+        ReactDOM.createRoot(document.getElementById('root')).render(<RideSelector />);
+    </script>
+</body>
+</html>
