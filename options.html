@@ -34,15 +34,20 @@
       background: #29506a;
       border-radius: 12px;
       width: 400px;
-      /* Remove conflicting min-width for uniformity */
       padding: 36px 32px 32px 32px;
       color: #fff;
       display: flex;
       flex-direction: column;
-      /* Ensure all children stretch to card width */
       align-items: stretch;
       box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      min-height: 700px;  
+      min-height: 700px;
+      /* Add these properties for smooth transition */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
     }
     /* Make key elements span full width for alignment */
     .card-header,
@@ -172,3 +177,4 @@
   </script>
 </body>
 </html>
+
