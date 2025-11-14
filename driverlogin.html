@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set font to Inter for a modern look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #080813; /* Deepest black background */
+        }
+        /* Main card styled like an elevated iOS panel */
+        .login-card {
+            background-color: #11111e; /* iOS Elevated Dark Gray */
+            /* Added Outer Glow (subtle cyan/blue) and kept the deep internal shadow */
+            box-shadow: 0 0 35px rgba(255, 255, 255, 0.2), 0 15px 50px rgba(0, 0, 0, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle edge highlight */
+        }
+        /* Grouped input container */
+        .input-group {
+            background-color: #212135; /* iOS Grouped Content Dark Gray */
+            border: none;
+        }
+        /* Input fields are transparent within the group */
+        .login-input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            /* Thin separator between inputs */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        .login-input:last-child {
+            border-bottom: none; /* Remove separator on the last item */
+        }
+        
+        .login-button {
+            background-color: #000000; /* High-contrast black button */
+            font-weight: 600;
+            transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring-like touch transition */
+        }
+        .login-button:active {
+            transform: scale(0.98); /* Press down effect */
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <!-- Card is now significantly wider (max-w-lg = 512px) and has large rounded corners (rounded-3xl) -->
+    <div class="login-card p-8 md:p-16 rounded-[28px] w-full max-w-lg">
+
+        <!-- Header Text: DRIVER -->
+        <h1 class="text-white text-5xl font-extrabold tracking-widest text-center mb-12 uppercase">
+            DRIVER
+        </h1>
+
+        <form id="loginForm">
+            
+            <!-- Grouped Inputs Container -->
+            <div class="input-group rounded-xl overflow-hidden shadow-2xl mb-12">
+                <!-- Email Input (Removed 'required') -->
+                <div>
+                    <input type="email" id="email" placeholder="Enter Admin Email"
+                           class="login-input w-full text-white placeholder-gray-400 p-4 pl-5 text-lg" />
+                </div>
+    
+                <!-- Password Input (Removed 'required') -->
+                <div>
+                    <input type="password" id="password" placeholder="Enter your Password"
+                           class="login-input w-full text-white placeholder-gray-400 p-4 pl-5 text-lg" />
+                </div>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit"
+                    class="login-button w-full text-white text-xl py-5 rounded-2xl shadow-xl">
+                LOGIN
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript to handle the form submission and navigation
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            // Prevent the default browser form submission (which would normally require form validation)
+            event.preventDefault();
+
+            // Navigate to the target page, fulfilling the request to bypass authentication on the client side
+            window.location.href = 'customer.html';
+        });
+    </script>
+</body>
+</html>

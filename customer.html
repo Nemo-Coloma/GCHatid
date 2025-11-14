@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Jobs Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Set font to Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A; 
+            overflow: hidden; /* Prevent body scroll */
+        }
+        
+        /* Base card background for default state (#1E1E1E) */
+        .job-card-base {
+            background-color: #161643;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Hover state: background changes to a lighter dark color (#2C2C2E) */
+        .job-card:hover .job-card-base {
+            background-color: #2b2b69;
+        }
+
+        /* The button only appears on hover */
+        .order-button-container {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+            padding-top: 0;
+        }
+        .job-card:hover .order-button-container {
+            max-height: 50px; /* Enough space for the button */
+            opacity: 1;
+            padding-top: 1rem; /* Add spacing above the button */
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex">
+
+    <!-- Left Side: Map Area (Takes about 65% of the screen) -->
+    <div class="flex-grow bg-gray-200" style="flex-basis: 65%;">
+        <!-- Mock Map Content (Placeholder matching the image) -->
+        <div class="h-full w-full relative">
+            <img src="https://placehold.co/1000x800/d5d5d5/475569?text=Interactive+Map+Placeholder" 
+                 alt="Placeholder map" class="w-full h-full object-cover">
+            <div class="absolute top-4 left-4 text-gray-700 text-lg font-semibold">Map View</div>
+            <!-- Mock Markers -->
+            <div class="absolute top-1/4 left-1/3 p-2 bg-blue-400 rounded-full shadow-lg">Serin Residency</div>
+            <div class="absolute bottom-1/4 left-1/4 p-2 bg-blue-400 rounded-full shadow-lg">Sejati Residences</div>
+        </div>
+    </div>
+
+    <!-- Right Side: Sidebar (Takes about 35% of the screen) -->
+    <div class="bg-gray-900 text-white p-6 overflow-y-auto" style="flex-basis: 35%;">
+        <h2 class="text-3xl font-bold mb-6">Available</h2>
+
+        <!-- Reusable Job Card Component -->
+        <template id="jobCardTemplate">
+            <div class="job-card cursor-pointer mb-5">
+                <div class="job-card-base rounded-2xl p-4 shadow-xl">
+                    <!-- Top Row: Name, Price, and Status -->
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-xl font-semibold name-placeholder">Gabriel Alec Mendoza</p>
+                            <p class="text-xs text-gray-400 email-placeholder">202345678@gordoncollege.edu.ph</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold price-placeholder">₱ 50</p>
+                            <p class="text-sm text-gray-400">Fair</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Location Tags -->
+                    <div class="flex flex-wrap gap-2 mb-4 tags-container">
+                        <span class="location-tag text-xs font-medium text-gray-300 bg-gray-700 px-3 py-1 rounded-full">Pick-Up to Gordon College Main</span>
+                    </div>
+
+                    <!-- Button Container (Hidden by default, appears on hover) -->
+                    <div class="order-button-container">
+                        <button class="take-order-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl transition duration-150">
+                            Take order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <!-- Job Listings will be inserted here -->
+        <div id="jobListings"></div>
+
+    </div>
+
+    <script>
+        const jobData = [
+            {
+                name: "Gabriel Alec Mendoza",
+                email: "202345678@gordoncollege.edu.ph",
+                price: "₱ 50",
+                location: "Pick-Up to Gordon College Main"
+            },
+            {
+                name: "Eyron G. Caras",
+                email: "202345678@gordoncollege.edu.ph",
+                price: "₱ 75",
+                location: "Custom Location to Gordon College Main"
+            },
+            {
+                name: "Angela Escobar",
+                email: "202345678@gordoncollege.edu.ph",
+                price: "₱ 30",
+                location: "Pahatid to Gordon College ANNEX"
+            }
+        ];
+
+        const jobListingsContainer = document.getElementById('jobListings');
+        const template = document.getElementById('jobCardTemplate');
+
+        jobData.forEach(job => {
+            const card = template.content.cloneNode(true);
+            
+            // Populate data
+            card.querySelector('.name-placeholder').textContent = job.name;
+            card.querySelector('.email-placeholder').textContent = job.email;
+            card.querySelector('.price-placeholder').textContent = job.price;
+            card.querySelector('.location-tag').textContent = job.location;
+
+            // Handle button click (Optional: show a message box instead of just navigating)
+            card.querySelector('.take-order-btn').addEventListener('click', () => {
+                showMessageBox(`Order for ${job.name} accepted!`);
+            });
+
+            jobListingsContainer.appendChild(card);
+        });
+
+        // --- Custom Modal/Message Box Implementation (To replace alert()) ---
+        function showMessageBox(message) {
+            const existingModal = document.getElementById('customModal');
+            if (existingModal) existingModal.remove();
+
+            const modalHtml = `
+                <div id="customModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full text-white">
+                        <h3 class="text-xl font-bold mb-4">Order Status</h3>
+                        <p class="mb-6">${message}</p>
+                        <button onclick="document.getElementById('customModal').remove()" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition duration-150">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+    </script>
+</body>
+</html>
