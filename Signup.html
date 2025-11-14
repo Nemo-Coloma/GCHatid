@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Landing Page</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      width: 100vw;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #1A2630;
+      position: relative;
+      overflow: hidden;
+    }
+    .bike-bg {
+      position: absolute;
+      top: 60px; /* slightly above the logo */
+      left: -35%; /* slightly right of the logo's left */
+      z-index: 1; /* behind the logo but above the circle */
+      width: 1500px; /* adjust size as needed */
+      height: auto;
+      opacity: 0.7; /* subtle effect */
+      pointer-events: none; /* so it doesn't interfere */
+      opacity: 0.2;
+    }
+    .logo {
+      position: absolute;
+      top: 10px;
+      left: -10%;
+      z-index: 2; /* above the bike and circle */
+    }
+    .logo img {
+      width: 1200px;
+      height: auto;
+    }
+    .circle {
+      position: absolute;
+      left: -30%;
+      top: 10%;
+      width: 1500px;
+      height: 1500px;
+      background: #205073;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .container {
+      position: absolute;
+      right: 5%;
+      top: 35%;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .title {
+      color: #fff;
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 36px;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 30px;
+      width: 500px;
+      max-width: 90vw;
+    }
+    .input-field {
+      padding: 18px 20px;
+      border: none;
+      border-radius: 16px;
+      background: #545d65;
+      color: #fff;
+      font-size: 20px;
+      font-family: inherit;
+      outline: none;
+      transition: background 0.2s;
+    }
+    .input-field::placeholder {
+      color: #c1c1c1;
+      font-size: 18px;
+    }
+    .login-btn {
+      padding: 16px 0;
+      width: 500px;
+      max-width: 80vw;
+      border: none;
+      border-radius: 18px;
+      background: #1671B7;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-btn:hover {
+      background: #0c4978;
+    }
+    @media (max-width: 900px) {
+      .container {
+        right: 5%;
+        top: 15%;
+      }
+      .circle {
+        width: 500px;
+        height: 500px;
+        left: -35%;
+        top: -17%;
+      }
+      .input-group {
+        width: 95vw;
+      }
+      .login-btn {
+        width: 95vw;
+      }
+      .logo img {
+        width: 90px;
+      }
+      .bike-bg {
+        width: 70vw;
+      }
+    }
+    @media (max-width: 600px) {
+      .title {
+        font-size: 32px;
+      }
+      .container {
+        top: 10%;
+      }
+      .circle {
+        width: 300px;
+        height: 300px;
+        left: -55%;
+        top: -35%;
+      }
+      .logo img {
+        width: 60px;
+      }
+      .bike-bg {
+        width: 50vw;
+      }
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeAfKyFcedf7z5vcPE-c9fKjpAMQyIhG4",
+      authDomain: "gchatid.firebaseapp.com",
+      databaseURL: "https://gchatid-default-rtdb.firebaseio.com",
+      projectId: "gchatid",
+      storageBucket: "gchatid.firebasestorage.app",
+      messagingSenderId: "32555305185",
+      appId: "1:32555305185:web:8a6c642eb34f1c4cde8fa0",
+      measurementId: "G-7T9YKPF5NW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Login handler
+      const loginForm = document.getElementById('loginForm');
+      loginForm.onsubmit = function(e) {
+        e.preventDefault();
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+        signInWithEmailAndPassword(auth, email, password)
+          .then(userCredential => {
+            window.location.href = "options.html";
+          })
+          .catch(error => {
+            alert(error.message);
+          });
+      };
+       });
+  </script>
+</head>
+<body>
+  <img src="bike.png" alt="Bike" class="bike-bg">
+  <div class="logo">
+    <img src="GCHatid Logo.png" alt="GCHatid Logo">
+  </div>
+  <div class="circle"></div>
+  <div class="container">
+    <div class="title">WELCOME!</div>
+    <form id="loginForm">
+      <div class="input-group">
+        <input class="input-field" type="email" id="emailInput" placeholder="Enter Gordon College Domain Email" required />
+        <input class="input-field" type="password" id="passwordInput" placeholder="Enter your Password" required />
+      </div>
+      <button type="submit" class="login-btn">LOGIN</button>
+    </form>
+    <form id="signupForm" style="margin-top:30px;">
+</body>
+</html>

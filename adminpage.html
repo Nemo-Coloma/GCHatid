@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#191b24', // The deep blue-gray background color
+                        'input-bg': '#343841', // The slightly lighter input background
+                        'input-border': '#4f555c',
+                        'primary-text': '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for the sleek dark aesthetic */
+        body {
+            background-color: #191b24;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-input {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .login-input:focus {
+            outline: none;
+            border: 1px solid #4f555c;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        .login-btn {
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: rgba(41, 41, 88, 0.7);
+        }
+    </style>
+</head>
+<body class="font-sans text-primary-text">
+
+    <div class="w-full max-w-sm p-6 space-y-8 rounded-xl shadow-2xl">
+        
+        <!-- Title matching the image -->
+        <h1 class="text-4xl font-bold text-center tracking-widest uppercase">ADMIN</h1>
+
+        <form id="loginForm" class="space-y-6" onsubmit="handleLogin(event)">
+            
+            <!-- Email Input -->
+            <input 
+                id="username" 
+                type="text" 
+                placeholder="Enter Admin Email" 
+                autocomplete="username"
+                required
+                class="login-input w-full py-3 px-4 text-white bg-input-bg rounded-lg placeholder-gray-400 focus:ring-1 focus:ring-white"
+            >
+
+            <!-- Password Input -->
+            <input 
+                id="password" 
+                type="password" 
+                placeholder="Enter your Password" 
+                autocomplete="current-password"
+                required
+                class="login-input w-full py-3 px-4 text-white bg-input-bg rounded-lg placeholder-gray-400 focus:ring-1 focus:ring-white"
+            >
+
+            <!-- Login Button -->
+            <button 
+                type="submit" 
+                class="login-btn w-full py-3 mt-8 text-lg font-bold bg-black rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white"
+            >
+                LOGIN
+            </button>
+        </form>
+
+        <!-- Custom Message Box/Modal -->
+        <div id="messageBox" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-dark-bg p-6 rounded-xl shadow-2xl max-w-sm w-full space-y-4 border border-red-500">
+                <h3 id="messageTitle" class="text-xl font-bold text-red-400"></h3>
+                <p id="messageBody" class="text-gray-300"></p>
+                <button 
+                    onclick="hideMessage()" 
+                    class="w-full py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Custom Message Box Functions ---
+        const messageBox = document.getElementById('messageBox');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageBody = document.getElementById('messageBody');
+
+        function showMessage(title, body, isSuccess) {
+            messageTitle.textContent = title;
+            messageBody.textContent = body;
+            
+            // Adjust styling based on success or failure
+            const modal = messageBox.querySelector('div');
+            modal.classList.remove('border-red-500', 'border-green-500');
+            modal.querySelector('button').classList.remove('bg-red-600', 'hover:bg-red-700', 'bg-green-600', 'hover:bg-green-700');
+
+            if (isSuccess) {
+                modal.classList.add('border-green-500');
+                modal.querySelector('button').classList.add('bg-green-600', 'hover:bg-green-700');
+                messageTitle.classList.remove('text-red-400');
+                messageTitle.classList.add('text-green-400');
+
+            } else {
+                modal.classList.add('border-red-500');
+                modal.querySelector('button').classList.add('bg-red-600', 'hover:bg-red-700');
+                messageTitle.classList.remove('text-green-400');
+                messageTitle.classList.add('text-red-400');
+            }
+            
+            messageBox.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+
+        // --- Login Logic ---
+        function handleLogin(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+
+            // Hardcoded Credentials
+            const VALID_USER = "admin";
+            const VALID_PASS = "admin123";
+            const REDIRECT_PAGE = "admindash.html";
+
+            if (usernameInput === VALID_USER && passwordInput === VALID_PASS) {
+                // SUCCESS LOGIC: Show success message and redirect
+                showMessage(
+                    "Login Successful!", 
+                    "You are now logged in. Redirecting to " + REDIRECT_PAGE + "...", 
+                    true
+                );
+
+                // For a real application, you would change the URL here:
+                // window.location.href = REDIRECT_PAGE;
+                
+                // We'll simulate the redirect delay
+                setTimeout(() => {
+                    // Since this environment doesn't have an admindash.html, we'll just close the modal.
+                    // In a live environment, the line below would be the only action.
+                    window.location.href = REDIRECT_PAGE; 
+                }, 1500);
+
+
+            } else {
+                // FAILURE LOGIC: Show error message
+                showMessage(
+                    "Login Failed", 
+                    "Invalid username or password. Please try again.",
+                    false
+                );
+            }
+        }
+    </script>
+</body>
+</html>
