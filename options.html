@@ -173,6 +173,15 @@
       document.getElementById('getRiderBtn').onclick = function() {
         window.location.href = "pickup.html";
       };
+      
+      // Add click handler for Open Map for Location button
+      document.querySelectorAll('.card-btn').forEach(btn => {
+        if (btn.textContent.trim() === 'Open Map for Location') {
+          btn.onclick = function() {
+            window.location.href = "location.html";
+          };
+        }
+      });
     });
   </script>
 </body>
