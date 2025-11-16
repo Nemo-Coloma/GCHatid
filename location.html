@@ -214,40 +214,66 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script>
-        var map = L.map('map').setView([14.8314775, 120.2819695], 16); // Default view set to Latitude: 14.8314775, Longitude: 120.2819695
+        var map = L.map('map').setView([14.8314775, 120.2819695], 16);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        var userLocation = null;
+        var userMarker = null;
+        var routingControl = null;
+
+        // Allow user to click on map to set their location
+        map.on('click', function(e) {
+            userLocation = e.latlng;
+            
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+            userMarker = L.marker(userLocation).addTo(map).bindPopup('Your Location').openPopup();
+        });
+
         function toggleLocation(element) {
             const items = document.querySelectorAll('.location-item');
-            items.forEach(item => item.classList.remove('active')); // Remove active class from all
-            element.classList.add('active'); // Add active class to the clicked element
+            items.forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
 
             const text = element.textContent.trim();
+            let coords;
+
             if (text === 'Gordon College Main Campus') {
-                const coords = [14.8329, 120.2821]; // Main Campus coordinates
-                map.flyTo(coords, 18, { animate: true, duration: 1.5 }); // smooth fly + zoom
-                if (window._pickupMarker) {
-                    map.removeLayer(window._pickupMarker);
-                }
-                window._pickupMarker = L.marker(coords).addTo(map).bindPopup('Gordon College Main Campus').openPopup();
+                coords = [14.8329, 120.2821];
             } else if (text === 'Gordon College ANNEX Campus') {
-                const coords = [14.8372648,120.2798648]; // ANNEX Campus coordinates
-                map.flyTo(coords, 18, { animate: true, duration: 1.5 }); // smooth fly + zoom
-                if (window._pickupMarker) {
-                    map.removeLayer(window._pickupMarker);
+                coords = [14.8372648, 120.2798648];
+            }
+
+            map.flyTo(coords, 18, { animate: true, duration: 1.5 });
+
+            // Create route if user location is set
+            if (userLocation) {
+                if (routingControl) {
+                    map.removeControl(routingControl);
                 }
-                window._pickupMarker = L.marker(coords).addTo(map).bindPopup('Gordon College ANNEX Campus').openPopup();
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        L.latLng(userLocation.lat, userLocation.lng),
+                        L.latLng(coords[0], coords[1])
+                    ],
+                    routeWhileDragging: true
+                }).addTo(map);
+            } else {
+                alert('Please click on the map to set your location first');
             }
         }
 
         function toggleRider(element) {
             const riders = document.querySelectorAll('.rider-card');
-            riders.forEach(rider => rider.classList.remove('active')); // Remove active class from all
-            element.classList.add('active'); // Add active class to the clicked rider
+            riders.forEach(rider => rider.classList.remove('active'));
+            element.classList.add('active');
         }
     </script>
 </body>
