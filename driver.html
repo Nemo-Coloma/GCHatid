@@ -23,7 +23,6 @@
             background-color: #0f0f1d; /* Even darker sidebar */
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            /* MODIFIED: Added flex properties to position the logout button at the bottom */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -76,13 +75,13 @@
         
         /* ADDED LOGOUT STYLES */
         .sidebar .nav-bottom {
-            margin-top: auto; /* Ensures the logout section is pushed to the bottom */
+            margin-top: auto; 
             padding-top: 20px;
         }
 
         .sidebar .logout-link a {
             color: #fff;
-            background-color: #dc3545; /* Red for Logout */
+            background-color: #c8303f; /* Red for Logout */
             text-align: center;
             font-weight: bold;
         }
@@ -186,14 +185,9 @@
             color: #fff;
         }
 
-        .filter-select {
-            background-color: #3f3f6c;
-            color: #fff;
-            border: 1px solid #a78bfa;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
+        /* Filter controls for status are now hidden */
+        .filter-controls {
+             display: none; 
         }
 
         .drivers-table {
@@ -224,24 +218,6 @@
             background-color: #3f3f6c;
         }
 
-        /* Status Badges */
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .status-active {
-            background-color: #28a745; /* Green */
-            color: white;
-        }
-
-        .status-inactive {
-            background-color: #dc3545; /* Red */
-            color: white;
-        }
-
         /* Action Buttons */
         .action-btn {
             background: none;
@@ -256,10 +232,6 @@
             color: #dc3545;
         }
 
-        .edit-btn {
-            color: #007bff;
-        }
-
         .action-btn:hover {
             transform: scale(1.2);
         }
@@ -271,7 +243,7 @@
             font-size: 0.9em;
         }
 
-        /* --- Modal Styling (for add driver form) --- */
+        /* --- Add Driver Modal Styling --- */
         .modal {
             display: none; 
             position: fixed; 
@@ -347,6 +319,78 @@
         .apply-form button:hover {
             background-color: #1e7e34;
         }
+        
+        /* --- Confirmation Box Styling (New Layout) --- */
+        /* Overlay remains the same: fixed inset-0, flex items-center justify-center */
+        #customOverlay {
+            background-color: rgba(0,0,0,0.7); 
+            display: none; /* Controlled by JS */
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+
+        /* Centered Modal Content */
+        #customOverlay > div {
+            background-color: #2c2c4d;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transition: transform 0.3s ease;
+            transform: translateY(-50px); /* Initial subtle lift effect */
+        }
+        
+        #customOverlay.visible > div {
+            transform: translateY(0);
+        }
+        
+        #customOverlay h3 {
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        #customOverlay p {
+            color: #e0e0e0;
+            margin-bottom: 25px;
+        }
+
+        #customOverlay .flex button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        /* Delete/Confirm Button Style */
+        #customOverlay #confirmBtn {
+            background-color: #dc3545; /* Red for Delete */
+            color: white;
+        }
+        
+        #customOverlay #confirmBtn:hover {
+            background-color: #c82333;
+        }
+
+        /* Cancel Button Style */
+        #customOverlay #cancelBtn {
+            background-color: #3f3f6c; /* Darker neutral gray */
+            color: #e0e0e0;
+        }
+
+        #customOverlay #cancelBtn:hover {
+            background-color: #51517a;
+        }
+
     </style>
 </head>
 <body>
@@ -395,12 +439,10 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Bike Model</th>
                                 <th>Plate No.</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -415,6 +457,7 @@
         </main>
     </div>
 
+    <!-- Add Driver Modal -->
     <div id="addDriverModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('addDriverModal').style.display='none'">&times;</span>
@@ -429,14 +472,17 @@
             </div>
         </div>
     </div>
+    
+    <!-- Custom Modal Overlay is now hidden by default and activated by JS -->
+    <div id="customOverlay"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const applyDriverBtn = document.getElementById('applyDriverBtn');
             const driversTableBody = document.getElementById('driversTableBody');
-            const modal = document.getElementById('addDriverModal');
+            const addModal = document.getElementById('addDriverModal');
 
-            // Initial drivers data, including status for the new look
+            // Initial drivers data. 
             let drivers = JSON.parse(localStorage.getItem('drivers')) || [
                 { id: 1, name: 'Jireh D. Bril', email: '2022012456@gordoncollege.edu.ph', bike: 'NMAX 150', plate: 'SBQ 0203', status: 'Active' },
                 { id: 2, name: 'Maria Santos', email: 'maria.s@example.com', bike: 'Honda PCX', plate: 'ABC 1234', status: 'Active' },
@@ -447,24 +493,21 @@
                 driversTableBody.innerHTML = '';
                 drivers.forEach((driver, index) => {
                     const row = driversTableBody.insertRow();
-                    row.insertCell(0).textContent = driver.id;
-                    row.insertCell(1).textContent = driver.name;
-                    row.insertCell(2).textContent = driver.email;
-                    row.insertCell(3).textContent = driver.bike;
-                    row.insertCell(4).textContent = driver.plate;
                     
-                    const statusCell = row.insertCell(5);
-                    statusCell.innerHTML = `<span class="status-badge status-${driver.status.toLowerCase()}">${driver.status}</span>`;
+                    row.insertCell(0).textContent = driver.name;     
+                    row.insertCell(1).textContent = driver.email;    
+                    row.insertCell(2).textContent = driver.bike;     
+                    row.insertCell(3).textContent = driver.plate;    
                     
-                    const actionsCell = row.insertCell(6);
+                    // Actions Cell (only delete button)
+                    const actionsCell = row.insertCell(4); 
                     actionsCell.innerHTML = `
-                        <button class="action-btn edit-btn" onclick="alert('Edit functionality not yet implemented for index: ${index}')">✏️</button>
-                        <button class="action-btn delete-btn" onclick="deleteDriver(${index})">🗑️</button>
+                        <button class="action-btn delete-btn" onclick="showConfirmBox('Are you sure you want to delete driver ${driver.name}?', () => deleteDriver(${index}))">🗑️</button>
                     `;
                 });
                 updateDriverCountDisplay();
                 localStorage.setItem('drivers', JSON.stringify(drivers));
-                localStorage.setItem('driversCount', drivers.length.toString()); // Update count for dashboard
+                localStorage.setItem('driversCount', drivers.length.toString()); 
             }
 
             function addDriver() {
@@ -475,7 +518,7 @@
 
                 if (name && email && bike && plate) {
                     const newId = drivers.length > 0 ? drivers[drivers.length - 1].id + 1 : 1;
-                    drivers.push({ id: newId, name, email, bike, plate, status: 'Active' }); // Status set to Active by default
+                    drivers.push({ id: newId, name, email, bike, plate, status: 'Active' }); 
                     renderDrivers();
                     
                     // Clear form and close modal
@@ -484,22 +527,85 @@
                     document.getElementById('driverEmail').value = '';
                     document.getElementById('driverBikeModel').value = '';
                     document.getElementById('driverPlateNo').value = '';
-                    modal.style.display = 'none';
+                    addModal.style.display = 'none';
                 } else {
-                    alert('Please fill in all required fields.');
+                    // Using the new confirmation box style for simple errors too, for consistency
+                    showConfirmBox('Please fill in all required fields.', () => {}, 'Okay');
                 }
             }
 
-            window.deleteDriver = function(index) {
-                if(confirm('Are you sure you want to delete this driver?')) {
-                    drivers.splice(index, 1);
-                    renderDrivers();
-                }
+            function deleteDriver(index) {
+                drivers.splice(index, 1);
+                renderDrivers();
+                // Simple message box logic is integrated into showConfirmBox
+                showConfirmBox('Driver successfully deleted.', () => {}, 'Got it!');
             }
 
             function updateDriverCountDisplay() {
                 document.getElementById('current-driver-count').textContent = drivers.length;
                 document.getElementById('total-driver-count').textContent = drivers.length;
+            }
+            
+            // --- Custom Confirmation Box Implementation (Replaces confirm() and alert()) ---
+            
+            /**
+             * Displays a custom confirmation modal.
+             * @param {string} message - The message to display.
+             * @param {function} onConfirm - Function to call if confirmed (optional).
+             * @param {string} confirmText - Text for the confirmation button (defaults to 'Confirm').
+             * @param {string} cancelText - Text for the cancel button (optional).
+             */
+            window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
+                const overlay = document.getElementById('customOverlay');
+                overlay.innerHTML = ''; // Clear previous content
+
+                // Determine if this is a true confirmation (needs Yes/No) or a simple alert (needs OK)
+                const isConfirmAction = typeof onConfirm === 'function'; 
+                const title = isConfirmAction ? 'Confirm Deletion' : 'Notification';
+
+                const modalHtml = `
+                    <div>
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <div class="flex ${isConfirmAction ? 'justify-between' : 'justify-center'} gap-3">
+                            ${isConfirmAction ? 
+                                `<button id="cancelBtn">${cancelText}</button>` 
+                                : ''
+                            }
+                            <button id="confirmBtn">${confirmText}</button>
+                        </div>
+                    </div>
+                `;
+                overlay.insertAdjacentHTML('afterbegin', modalHtml);
+                overlay.style.display = 'flex'; // Show the overlay
+                overlay.classList.add('visible');
+
+                const confirmBtn = document.getElementById('confirmBtn');
+                const cancelBtn = document.getElementById('cancelBtn');
+
+                const closeModal = () => {
+                    overlay.classList.remove('visible');
+                    // Give a moment for transition before hiding display
+                    setTimeout(() => overlay.style.display = 'none', 300); 
+                }
+
+                confirmBtn.addEventListener('click', () => {
+                    closeModal();
+                    if (isConfirmAction) {
+                        onConfirm();
+                    }
+                });
+
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', closeModal);
+                }
+                
+                // Close if clicking outside the modal content
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        closeModal();
+                    }
+                });
             }
 
             applyDriverBtn.addEventListener('click', addDriver);
