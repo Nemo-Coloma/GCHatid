@@ -146,6 +146,38 @@
         width: 50vw;
       }
     }
+
+    @media (max-width: 768px) {
+  /* 1. Mobile body adjustments */
+  body {
+    overflow-y: auto; /* Allow scrolling */
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* 2. Hide large, fixed background elements to save space and processing power */
+  .bike-bg, .logo, .circle {
+    display: none;
+  }
+
+  /* 3. Re-position and resize the main container/form */
+  .container {
+    position: static; /* Remove absolute positioning */
+    top: auto;
+    right: auto;
+    width: 90%; /* Use most of the screen width */
+    max-width: 400px; /* Keep it centered and readable */
+    margin: 40px auto; /* Center the container */
+    padding-top: 50px; /* Add some space at the top */
+    align-items: stretch; /* Make inputs full width */
+  }
+
+  /* 4. Adjust the title size for mobile */
+  .title {
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+}
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
