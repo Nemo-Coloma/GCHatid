@@ -45,6 +45,25 @@
             transform: scale(0.98); /* Press down effect */
             opacity: 0.9;
         }
+        @media (max-width: 500px) {
+  /* Scale down the large header for small phones */
+  .login-card h1 {
+    font-size: 3rem; /* 48px, down from 5xl (4rem/64px) */
+    margin-bottom: 2.5rem; /* Reduce bottom margin */
+  }
+
+  /* Reduce card padding slightly for very compact screens */
+  .login-card {
+    padding: 2rem; /* Reduced from p-8/32px to 2rem/32px for consistency */
+  }
+
+  /* Make button height slightly more compact */
+  .login-button {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-size: 1.125rem; /* text-xl */
+  }
+}
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
