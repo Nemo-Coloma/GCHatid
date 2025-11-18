@@ -3,159 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Jobs Dashboard</title>
-    <!-- Load Tailwind CSS -->
+    <title>Driver Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Set font to Inter */
+        /* iOS Dark Mode Color Palette and Typography */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0A0A0A; 
-            overflow: hidden; /* Prevent body scroll */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            margin: 0;
+            overflow: hidden; 
+            height: 100vh;
+            background-color: #000000; /* True black background */
         }
         
-        /* Base card background for default state (#1E1E1E) */
+        .main-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Map container */
+        #map {
+            flex: 3; /* e.g., 75% of width */
+            height: 100%;
+            z-index: 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5); 
+        }
+
+        /* Sidebar/Panel for requests - Mimics an iOS card stack background */
+        .sidebar {
+            flex: 1; 
+            min-width: 350px; 
+            background-color: #1C1C1E; /* Deep charcoal/indigo background */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Header in the sidebar - Clean and flat */
+        .sidebar-header {
+            padding: 18px 20px;
+            border-bottom: 0.5px solid #3A3A3C; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Back Button Icon Styling - iOS Chevron */
+        .back-button {
+            display: inline-block;
+            background: #2C2C2E; 
+            color: #E5E5E5; 
+            font-size: 1.5em;
+            font-weight: 500;
+            padding: 2px 12px 2px 8px; 
+            border-radius: 9px; 
+            cursor: pointer;
+            text-decoration: none;
+            line-height: 1;
+            transition: background-color 0.15s;
+        }
+        
+        .back-button:active {
+            background-color: #4C4C4E;
+        }
+
+        /* Job Card Styling - Base */
         .job-card-base {
-            background-color: #161643;
-            transition: all 0.2s ease-in-out;
+            background-color: #2C2C2E; 
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); 
+            border: 1px solid #3A3A3C;
+        }
+        
+        /* Styling for the Active Ride Card */
+        .active-ride-card {
+            background-color: #14354D; 
+            border: 1px solid #0A84FF; 
         }
 
-        /* Hover state: background changes to a lighter dark color (#2C2C2E) */
-        .job-card:hover .job-card-base {
-            background-color: #2b2b69;
+        /* iOS Primary Action Button (Accept/Drop Off) */
+        .take-order-btn {
+            background-color: #34C759; /* iOS Green for Accept */
+            color: white;
+            font-weight: 600; 
+            border-radius: 10px;
+            transition: background-color 0.1s;
         }
+        
+        /* Drop Off Button (Red) */
+        .drop-off-btn {
+            background-color: #FF3B30; /* iOS Red */
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: background-color 0.1s;
+        }
+        
+        .take-order-btn:active { background-color: #2BA84E; }
+        .drop-off-btn:active { background-color: #CC231B; }
 
-        /* The button only appears on hover */
-        .order-button-container {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.2s ease-in-out;
-            padding-top: 0;
+        .no-requests-message {
+            text-align: center;
+            padding: 40px;
+            color: #8E8E93; 
         }
-        .job-card:hover .order-button-container {
-            max-height: 50px; /* Enough space for the button */
-            opacity: 1;
-            padding-top: 1rem; /* Add spacing above the button */
+        
+        /* Map Marker Custom Icon Styles */
+        .marker-pending { background-color: #FF3B30; } 
+        .marker-active { background-color: #0A84FF; } 
+
+        .pickup-icon > div {
+             border-radius: 50%; 
+             width: 18px; 
+             height: 18px; 
+             border: 3px solid white; 
+             box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
+        
+        /* --- FARE DISPLAY on Card --- */
+        .fare-badge {
+            background-color: #0A84FF; /* iOS Blue */
+            color: white;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        /* --- Drop Off Success Modal --- */
+        #fareMadeModal .modal-content {
+            background-color: #34C759; /* Green for Success */
+            border: 1px solid #2BA84E;
+        }
+        #fareMadeModal .modal-title {
+            color: white;
+        }
+        #fareMadeModal .fare-amount {
+            font-size: 2.5em;
+            font-weight: 900;
+            color: white;
+            margin: 10px 0;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+  /* 1. Allow body to scroll and remove fixed height constraints */
+  body {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* 2. Stack map and sidebar vertically */
+  .main-wrapper {
+    flex-direction: column; 
+    height: auto; /* Override 100vh for stacking */
+  }
+
+  /* 3. Map takes the top half of the screen */
+  #map {
+    height: 50vh; /* 50% of the viewport height */
+    flex: none; /* Remove flex-grow */
+    width: 100%;
+    /* Add a shadow on the bottom to separate from the sidebar */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5); 
+  }
+
+  /* 4. Sidebar takes the bottom half and becomes full width */
+  .sidebar {
+    width: 100%; /* Full screen width */
+    min-width: 100%; /* Crucial: Override the desktop min-width of 350px */
+    height: 50vh; /* 50% of the viewport height */
+    flex: none;
+    overflow-y: auto; /* Enable vertical scrolling within the sidebar content */
+    border-top: 1px solid #3A3A3C;
+  }
+
+  /* 5. Adjust header padding to be more compact */
+  .sidebar-header {
+    padding: 15px 10px;
+  }
+  
+  /* 6. Adjust card padding and margin */
+  #activeRideContainer, #incomingRequests {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .job-card-base {
+    margin: 10px 0;
+  }
+}
+        
     </style>
 </head>
-<body class="h-screen w-screen flex">
+<body onload="initializeRequests(); setInterval(renderDashboard, 3000)">
+    <div class="main-wrapper">
+        
+        <div id="map"></div>
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="text-2xl font-bold text-white">Ride Dispatch</h1>
+                <a href="options.html" class="back-button" aria-label="Back to Options">
+                    &#x2039; Back
+                </a>
+            </div>
 
-    <!-- Left Side: Map Area (Takes about 65% of the screen) -->
-    <div class="flex-grow bg-gray-200" style="flex-basis: 65%;">
-        <!-- Mock Map Content (Placeholder matching the image) -->
-        <div class="h-full w-full relative">
-            <img src="https://placehold.co/1000x800/d5d5d5/475569?text=Interactive+Map+Placeholder" 
-                 alt="Placeholder map" class="w-full h-full object-cover">
-            <div class="absolute top-4 left-4 text-gray-700 text-lg font-semibold">Map View</div>
-            <!-- Mock Markers -->
-            <div class="absolute top-1/4 left-1/3 p-2 bg-blue-400 rounded-full shadow-lg">Serin Residency</div>
-            <div class="absolute bottom-1/4 left-1/4 p-2 bg-blue-400 rounded-full shadow-lg">Sejati Residences</div>
+            <div class="px-5 pt-5 pb-2">
+                <h2 class="text-lg font-semibold text-white">Active Ride</h2>
+            </div>
+            <div id="activeRideContainer" class="px-4">
+                <div id="noActiveRideFallback" class="no-requests-message p-0">
+                    <p class="text-sm">No ride currently active.</p>
+                </div>
+                </div>
+            
+            <div class="border-t border-gray-700 mx-4 my-2"></div>
+            
+            <div class="px-5 pt-2 pb-2">
+                <h2 class="text-lg font-semibold text-white">New Requests Queue</h2>
+            </div>
+            <div id="incomingRequests" class="p-4 flex-grow overflow-y-auto pt-0">
+                <div id="noRequestsFallback" class="no-requests-message">
+                    <p>Waiting for riders to request a trip.</p>
+                </div>
+                </div>
+            
         </div>
     </div>
 
-    <!-- Right Side: Sidebar (Takes about 35% of the screen) -->
-    <div class="bg-gray-900 text-white p-6 overflow-y-auto" style="flex-basis: 35%;">
-        <h2 class="text-3xl font-bold mb-6">Available</h2>
-
-        <!-- Reusable Job Card Component -->
-        <template id="jobCardTemplate">
-            <div class="job-card cursor-pointer mb-5">
-                <div class="job-card-base rounded-2xl p-4 shadow-xl">
-                    <!-- Top Row: Name, Price, and Status -->
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-xl font-semibold name-placeholder">Gabriel Alec Mendoza</p>
-                            <p class="text-xs text-gray-400 email-placeholder">202345678@gordoncollege.edu.ph</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-2xl font-bold price-placeholder">₱ 50</p>
-                            <p class="text-sm text-gray-400">Fair</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Location Tags -->
-                    <div class="flex flex-wrap gap-2 mb-4 tags-container">
-                        <span class="location-tag text-xs font-medium text-gray-300 bg-gray-700 px-3 py-1 rounded-full">Pick-Up to Gordon College Main</span>
-                    </div>
-
-                    <!-- Button Container (Hidden by default, appears on hover) -->
-                    <div class="order-button-container">
-                        <button class="take-order-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl transition duration-150">
-                            Take order
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-        
-        <!-- Job Listings will be inserted here -->
-        <div id="jobListings"></div>
-
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content p-6 max-w-sm w-full text-white">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4">Notification</h3>
+            <p id="modalMessage" class="mb-6 text-gray-300"></p>
+            <button onclick="document.getElementById('customModal').style.display='none'" 
+                    class="modal-ok-btn w-full py-2 rounded-lg font-semibold bg-blue-500">
+                OK
+            </button>
+        </div>
+    </div>
+    
+    <div id="fareMadeModal" class="modal-overlay">
+        <div class="modal-content p-8 max-w-xs w-full text-center">
+            <h3 class="modal-title text-2xl font-bold mb-2">Ride Completed!</h3>
+            <p class="text-white text-lg">You just made:</p>
+            <p id="fareAmount" class="fare-amount">₱0.00</p>
+            <button onclick="document.getElementById('fareMadeModal').style.display='none'" 
+                    class="modal-ok-btn w-full py-2 rounded-lg font-semibold bg-white text-green-500 hover:bg-gray-100">
+                Awesome!
+            </button>
+        </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        const jobData = [
-            {
-                name: "Gabriel Alec Mendoza",
-                email: "202345678@gordoncollege.edu.ph",
-                price: "₱ 50",
-                location: "Pick-Up to Gordon College Main"
-            },
-            {
-                name: "Eyron G. Caras",
-                email: "202345678@gordoncollege.edu.ph",
-                price: "₱ 75",
-                location: "Custom Location to Gordon College Main"
-            },
-            {
-                name: "Angela Escobar",
-                email: "202345678@gordoncollege.edu.ph",
-                price: "₱ 30",
-                location: "Pahatid to Gordon College ANNEX"
+        // Leaflet Map Initialization
+        const map = L.map('map').setView([14.8314775, 120.2819695], 16); 
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Map to hold all request markers
+        const requestMarkers = {};
+
+        // Coordinates for common locations (must match locations used in all customer files)
+        const locations = {
+            'Gordon College Main Campus': [14.8324, 120.2833],
+            'Gordon College ANNEX Campus': [14.8372648, 120.2798648]
+        };
+        
+        // --- Utility Functions ---
+
+        function showMessageBox(message, title = 'Notification') {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('customModal').style.display = 'flex';
+        }
+
+        function getRequestsQueue() {
+            const queue = localStorage.getItem('all_requests_queue');
+            return queue ? JSON.parse(queue) : [];
+        }
+
+        function saveRequestsQueue(queue) {
+            localStorage.setItem('all_requests_queue', JSON.stringify(queue));
+        }
+
+        function generateUniqueId() {
+             return Date.now() + Math.random().toString(36).substring(2, 9);
+        }
+        
+        // --- Core Dispatch Logic ---
+
+        // 1. Initialize: Checks for a new single request item (from customer files) and queues it up.
+        function initializeRequests() {
+            const pendingJson = localStorage.getItem('pending_request');
+            if (pendingJson) {
+                try {
+                    const newRequest = JSON.parse(pendingJson);
+                    
+                    // Assign a unique ID and initial status
+                    newRequest.id = generateUniqueId();
+                    newRequest.status = 'pending'; 
+
+                    const queue = getRequestsQueue();
+                    queue.push(newRequest);
+                    saveRequestsQueue(queue);
+                    
+                    // Clear the old single item so the customer can make another new request
+                    localStorage.removeItem('pending_request'); 
+                    
+                } catch(e) {
+                    console.error("Error parsing or queuing new request:", e);
+                    localStorage.removeItem('pending_request');
+                }
             }
-        ];
+            // Start the dashboard render loop
+            renderDashboard();
+        }
 
-        const jobListingsContainer = document.getElementById('jobListings');
-        const template = document.getElementById('jobCardTemplate');
-
-        jobData.forEach(job => {
-            const card = template.content.cloneNode(true);
+        // 2. Render: Updates the UI based on the request queue status
+        function renderDashboard() {
+            const queue = getRequestsQueue();
+            const incomingContainer = document.getElementById('incomingRequests');
+            const activeContainer = document.getElementById('activeRideContainer');
             
-            // Populate data
-            card.querySelector('.name-placeholder').textContent = job.name;
-            card.querySelector('.email-placeholder').textContent = job.email;
-            card.querySelector('.price-placeholder').textContent = job.price;
-            card.querySelector('.location-tag').textContent = job.location;
+            incomingContainer.innerHTML = '';
+            activeContainer.innerHTML = '';
 
-            // Handle button click (Optional: show a message box instead of just navigating)
-            card.querySelector('.take-order-btn').addEventListener('click', () => {
-                showMessageBox(`Order for ${job.name} accepted!`);
+            let hasPending = false;
+            let hasActive = false;
+
+            // Clear map markers before re-rendering
+            Object.values(requestMarkers).forEach(marker => map.removeLayer(marker));
+            // Reset the marker map
+            Object.keys(requestMarkers).forEach(key => delete requestMarkers[key]);
+
+
+            queue.forEach(request => {
+                const { id, status, location, description, user_lat, user_lng, fare } = request;
+                
+                // Determine location and type
+                let pickupCoords;
+                let pickupName;
+                let destinationName = 'N/A';
+                let requestTitle = "REQUEST";
+                let extraDetails = "";
+
+                if (user_lat && user_lng) {
+                    // Type: location.html (A to B ride from map click)
+                    pickupCoords = [user_lat, user_lng];
+                    pickupName = "User's Location (Map Click)";
+                    destinationName = location;
+                    requestTitle = "A to B Ride";
+                    
+                } else if (description) {
+                    // Type: pahatid.html (B to A Delivery with Description)
+                    pickupCoords = locations[location];
+                    pickupName = location;
+                    destinationName = "User's Destination (Pahatid)";
+                    requestTitle = "Pahatid Delivery";
+                    extraDetails = `<p class="text-xs text-gray-400 mt-2 mb-1">Description:</p>
+                                    <p class="text-sm text-gray-200">${description || 'N/A'}</p>`;
+
+                } else if (locations[location]) {
+                    // Type: Pickup.html (B to A Ride from known location)
+                    pickupCoords = locations[location];
+                    pickupName = location;
+                    requestTitle = "Simple Pickup Ride";
+                }
+
+                if (!pickupCoords) return; // Skip invalid requests
+
+                // --- Map Marker Logic ---
+                const markerColorClass = status === 'pending' ? 'marker-pending' : 'marker-active';
+                const iconHtml = `<div class="pickup-icon ${markerColorClass}"></div>`;
+
+                const marker = L.marker(pickupCoords, {
+                    icon: L.divIcon({ 
+                        className: 'pickup-icon', 
+                        html: iconHtml,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                }).addTo(map).bindPopup(`Pick-up: ${pickupName} (Status: ${status.toUpperCase()})`);
+
+                requestMarkers[id] = marker; // Store the marker reference
+                
+                // Set map view to the accepted ride or the newest pending ride
+                if (status === 'accepted') {
+                     map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
+                } else if (!hasActive && status === 'pending' && !hasPending) {
+                     map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
+                }
+
+
+                // --- Card Rendering Logic ---
+                const statusColor = status === 'pending' ? 'text-red-400' : 'text-blue-400';
+                
+                let buttonHtml;
+                if (status === 'pending') {
+                    buttonHtml = `<button onclick="acceptRequest('${id}')" 
+                                    class="take-order-btn w-full py-3 rounded-xl text-white">
+                                    Accept Ride
+                                </button>`;
+                    hasPending = true;
+                } else if (status === 'accepted') {
+                    buttonHtml = `<button onclick="dropOffPassenger('${id}')" 
+                                    class="drop-off-btn w-full py-3 rounded-xl text-white">
+                                    Passenger Dropped Off
+                                </button>`;
+                    hasActive = true;
+                } else {
+                    return; // Do not render completed requests
+                }
+
+                const cardHtml = `
+                    <div id="request-${id}" class="job-card-base p-4 my-2 ${status === 'accepted' ? 'active-ride-card' : ''}">
+                        <h3 class="text-lg font-semibold ${statusColor} mb-2">${requestTitle}</h3>
+                        
+                        <p class="text-xs text-gray-400 mb-1">Pick-up Location:</p>
+                        <p class="text-xl font-bold text-white mb-2">${pickupName}</p>
+                        
+                        <p class="text-xs text-gray-400 mt-3 mb-1">Destination:</p>
+                        <p class="text-lg text-gray-200">${destinationName}</p>
+                        
+                        ${extraDetails}
+                        
+                        <span class="fare-badge">FARE: ₱${fare}</span>
+
+                        <div class="mt-4">
+                            ${buttonHtml}
+                        </div>
+                    </div>
+                `;
+
+                if (status === 'accepted') {
+                    // Only one active ride is displayed
+                    activeContainer.innerHTML = cardHtml;
+                } else if (status === 'pending') {
+                    incomingContainer.insertAdjacentHTML('beforeend', cardHtml);
+                }
             });
 
-            jobListingsContainer.appendChild(card);
-        });
-
-        // --- Custom Modal/Message Box Implementation (To replace alert()) ---
-        function showMessageBox(message) {
-            const existingModal = document.getElementById('customModal');
-            if (existingModal) existingModal.remove();
-
-            const modalHtml = `
-                <div id="customModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-                    <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full text-white">
-                        <h3 class="text-xl font-bold mb-4">Order Status</h3>
-                        <p class="mb-6">${message}</p>
-                        <button onclick="document.getElementById('customModal').remove()" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition duration-150">
-                            OK
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            // Update fallbacks
+            document.getElementById('noRequestsFallback').style.display = hasPending ? 'none' : 'block';
+            document.getElementById('noActiveRideFallback').style.display = hasActive ? 'none' : 'block';
         }
+        
+        // 3. Action: Driver Accepts a Ride
+        function acceptRequest(id) {
+            const queue = getRequestsQueue();
+            const activeId = queue.find(req => req.status === 'accepted');
+
+            if (activeId) {
+                showMessageBox("You must complete the current active ride before accepting a new one.", "Limit Reached");
+                return;
+            }
+            
+            const updatedQueue = queue.map(req => {
+                if (req.id === id) {
+                    req.status = 'accepted';
+                }
+                return req;
+            });
+            
+            saveRequestsQueue(updatedQueue);
+            showMessageBox(`Ride accepted! Navigate to the pick-up location.`, "Ride Accepted");
+            renderDashboard(); 
+        }
+
+        // 4. Action: Driver Drops Off Passenger (Completes the Ride)
+        function dropOffPassenger(id) {
+            const queue = getRequestsQueue();
+            const completedRequest = queue.find(req => req.id === id);
+
+            if (!completedRequest) return;
+            
+            // 4a. Show fare made pop-up
+            document.getElementById('fareAmount').textContent = `₱${completedRequest.fare}`;
+            document.getElementById('fareMadeModal').style.display = 'flex';
+            
+            // 4b. Filter out the completed request from the queue
+            const updatedQueue = queue.filter(req => req.id !== id);
+
+            saveRequestsQueue(updatedQueue);
+            
+            // 4c. Update dashboard after the user closes the pop-up (or immediately if you prefer)
+            // We use a small delay here to ensure the pop-up is visible first.
+            setTimeout(renderDashboard, 500); 
+        }
+
     </script>
 </body>
 </html>
