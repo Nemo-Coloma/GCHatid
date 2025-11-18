@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,6 +131,42 @@
       .card-header {
         font-size: 36px;
       }
+      @media (max-width: 850px) {
+  /* 1. Adjust body padding */
+  body {
+    padding: 10px;
+  }
+
+  /* 2. Re-layout the modal content to stack cards vertically */
+  .modal-overlay {
+    position: static; /* Allow it to flow naturally */
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start; /* Align content to the top */
+    background: #f5f5f5; /* Use body background for cleaner look */
+  }
+  
+  .modal-content {
+    flex-direction: column; /* Stack cards vertically */
+    gap: 20px;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* 3. Make cards full width and remove fixed height constraints */
+  .card {
+    width: 100%; /* Take full width */
+    max-width: none; /* Override fixed width */
+    min-height: auto; /* Remove minimum height */
+    padding: 25px 20px;
+    box-sizing: border-box; 
+  }
+
+  /* 4. Adjust button padding for easier tapping */
+  .card-btn {
+    padding: 14px 20px;
+  }
+}
     }
   </style>
 </head>
@@ -154,7 +191,8 @@
           <li><span class="check">&#10003;</span> Near Gordon College Annex</li>
           <li><span class="cross">&#10007;</span> Far location between campus</li>
         </ul>
-        <button class="card-btn">Open Map for Location</button>
+        <!-- Added id to navigate to chooseloc.html -->
+        <button class="card-btn" id="chooseLocBtn">Open Map for Location</button>
       </div>
       <div class="card">
         <div class="card-header">GC Pahatid</div>
@@ -164,7 +202,8 @@
           <li><span class="check">&#10003;</span> Must not be bigger than a helmet</li>
           <li><span class="cross">&#10007;</span> Oversized and 5kg Overweight</li>
         </ul>
-        <button class="card-btn">Pahatid Gamit</button>
+        <!-- Added id to navigate to pahatid.html -->
+        <button class="card-btn" id="pahatidBtn">Pahatid Gamit</button>
       </div>
     </div>
   </div>
@@ -173,23 +212,16 @@
       document.getElementById('getRiderBtn').onclick = function() {
         window.location.href = "pickup.html";
       };
-      
-      // Add click handler for Open Map for Location button
-      document.querySelectorAll('.card-btn').forEach(btn => {
-        if (btn.textContent.trim() === 'Open Map for Location') {
-          btn.onclick = function() {
-            window.location.href = "location.html";
-          };
-        }
-        // Add click handler for Pahatid Gamit button
-        if (btn.textContent.trim() === 'Pahatid Gamit') {
-          btn.onclick = function() {
-            window.location.href = "pahatid.html";
-          };
-        }
-      });
+      // navigate to chooseloc.html
+      document.getElementById('chooseLocBtn').onclick = function() {
+        window.location.href = "location.html";
+      };
+      // navigate to pahatid.html
+      document.getElementById('pahatidBtn').onclick = function() {
+        window.location.href = "pahatid.html";
+      };
     });
+    
   </script>
 </body>
 </html>
-
