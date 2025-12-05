@@ -44,6 +44,26 @@
             margin-bottom: 25px;
         }
 
+        /* --- Header Alignment (NEW) --- */
+        .sidebar-header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px; /* Space before campus buttons */
+        }
+        
+        .sidebar-header-row .section {
+            margin-bottom: 0; /* Remove section margin when in header row */
+            flex-grow: 1;
+        }
+        
+        .sidebar-header-row .section h3 {
+            padding-bottom: 0;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        /* --- END Header Alignment --- */
+
+
         .section h3 {
             text-align: left; /* iOS headings often align left */
             margin-top: 0;
@@ -52,30 +72,6 @@
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
-        }
-
-        /* Location Buttons (Tappable Cells) - NOT USED IN THIS VERSION */
-        .pick-up-location .location-item {
-            text-align: left;
-            background-color: rgba(255, 255, 255, 0.08); /* Lighter background for cells */
-            padding: 15px; /* Increased padding */
-            margin-bottom: 8px; /* Slightly smaller margin */
-            border-radius: 10px; /* Rounded corners */
-            cursor: pointer;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
-            font-weight: 500;
-        }
-
-        .pick-up-location .location-item:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Active/Clicked State for Location Buttons */
-        .pick-up-location .location-item.active {
-            background-color: #1f568a; 
-            border: 2px solid #15c8ff; /* Light blue accent border */
-            box-shadow: 0 0 10px rgba(21, 200, 255, 0.5); /* Glowing effect */
-            font-weight: 600;
         }
 
         /* --- Description Box Styling --- */
@@ -131,10 +127,10 @@
             box-shadow: 0 2px 8px rgba(38, 193, 102, 0.6);
         }
         
-        /* --- Back Button ICON Styling --- */
+        /* --- Back Button ICON Styling (Modified) --- */
         .back-button-container {
+            margin-bottom: 0; /* Important: remove bottom margin */
             text-align: left;
-            margin-bottom: 25px;
         }
 
         .back-button {
@@ -142,13 +138,15 @@
             background: rgba(255, 255, 255, 0.1); 
             border: none;
             color: white;
-            font-size: 1.5em;
-            padding: 8px 15px; 
+            font-size: 1.2em; /* Smaller icon size */
+            padding: 6px 12px; /* Reduced padding */
             border-radius: 50%;
             cursor: pointer;
             text-decoration: none;
             line-height: 1;
             transition: background-color 0.2s, color 0.2s;
+            margin-right: 15px; /* Space between button and heading */
+            flex-shrink: 0;
         }
 
         .back-button:hover {
@@ -156,7 +154,7 @@
             color: #15c8ff;
         }
 
-        /* --- Waiting Modal Styling (Pop-up Icon) --- */
+        /* --- Other Modal/Notification styles remain unchanged --- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -225,7 +223,6 @@
             background-color: #c82333;
         }
         
-        /* --- Rider Found Notification Card --- */
         #riderFoundNotification {
             position: absolute;
             bottom: 20px;
@@ -249,7 +246,6 @@
             opacity: 1;
         }
 
-        /* --- Custom Alert/Message Box --- */
         #customAlert {
             display: none;
             position: fixed;
@@ -321,73 +317,75 @@
                 height: 100%; 
             }
 
-            /* 1. Map takes a smaller portion of the screen (40%) */
+            /* 1. Map takes 40% of the screen */
             #map {
-                height: 40vh; /* Reduced from 50vh */
+                height: 40vh; 
                 flex: none; 
             }
 
-            /* 2. Sidebar takes the remaining space (60%) and is NOT scrollable */
+            /* 2. Sidebar takes the remaining 60% and is NOT scrollable */
             .sidebar {
                 width: 100%; 
-                height: 60vh; /* Takes the remaining 60% */
-                padding: 15px 15px; /* Reduced vertical padding */
+                height: 60vh; 
+                padding: 15px; /* Reduced padding */
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); 
                 overflow-y: hidden; /* **CRITICAL: Prevent scrolling** */
                 flex: none;
-                
-                /* Ensure content starts from the top on mobile */
-                justify-content: flex-start; 
+                justify-content: flex-start; /* Ensure content starts from the top */
             }
 
-            /* Reduce vertical spacing within sections */
-            .back-button-container {
-                margin-bottom: 10px; /* Reduced margin */
+            /* 3. Reduce vertical spacing and compact elements */
+            
+            .sidebar-header-row {
+                margin-bottom: 8px; /* Slightly reduced margin */
             }
 
             .section {
-                margin-bottom: 10px; /* Reduced margin */
+                margin-bottom: 8px; /* Reduced section margin */
             }
 
             .section h3 {
-                padding-bottom: 5px; /* Reduced padding */
+                padding-bottom: 5px; 
                 margin-bottom: 5px; 
-                font-size: 1.2em; /* Slightly smaller heading */
+                font-size: 1.2em; 
+            }
+            
+            .pick-up-location-buttons {
+                margin-bottom: 8px !important; /* Reduced margin below buttons */
+            }
+
+            .ios-campus-btn {
+                padding: 8px 10px; /* Reduced button padding */
+                font-size: 13px;
             }
             
             .description-box {
-                flex-grow: 1; 
-                margin-bottom: 5px;
+                flex-grow: 1; /* Allow description box to take minimal space */
             }
             
             #rideDescription {
-                min-height: 50px; /* Reduced minimum height */
-                max-height: 80px; /* Reduced maximum height */
-                padding: 10px;
+                min-height: 40px; /* Reduced minimum height */
+                max-height: 60px; /* Reduced maximum height */
+                padding: 8px; /* Reduced padding */
             }
             
             .fare-display {
                 margin-top: 5px; 
-                padding: 8px; /* Reduced padding */
+                padding: 6px; /* Reduced padding */
             }
             
             .fare-display p {
-                font-size: 1.8em; /* Slightly smaller fare text */
+                font-size: 1.8em; 
             }
 
             .request-section {
-                padding-top: 10px; /* Reduced padding */
-                margin-top: auto; /* Push the request button to the very bottom */
+                padding-top: 10px; 
+                margin-top: auto; 
             }
             
             .make-request-btn {
-                padding: 14px; /* Reduced padding */
+                padding: 12px; /* Reduced padding */
                 font-size: 1em;
-            }
-            
-            .ios-campus-btn {
-                padding: 8px 10px; /* Reduced button padding */
-                font-size: 13px;
             }
         }
 
@@ -399,17 +397,20 @@
         <div id="map"></div>
         
         <div class="sidebar">
-            <div class="back-button-container">
-                <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
+            
+            <div class="sidebar-header-row">
+                <div class="back-button-container">
+                    <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
+                </div>
+                <div class="section pick-up-location" style="margin-bottom: 0;"> 
+                    <h3>Pick-up Location</h3>
+                </div>
             </div>
             
-            <div> 
-                <div class="section pick-up-location">
-                    <h3>Pick-up Location</h3>
-                    <div style="display:flex; gap:12px; justify-content:center; margin-bottom:10px;">
-                        <button class="ios-campus-btn" onclick="showRouteToCampus('main'); return false;">Gordon College Main Campus</button>
-                        <button class="ios-campus-btn" onclick="showRouteToCampus('annex'); return false;">Gordon College Annex Campus</button>
-                    </div>
+            <div>
+                <div class="pick-up-location-buttons" style="display:flex; gap:12px; justify-content:center; margin-bottom:10px;">
+                    <button class="ios-campus-btn" onclick="showRouteToCampus('main'); return false;">Gordon College Main Campus</button>
+                    <button class="ios-campus-btn" onclick="showRouteToCampus('annex'); return false;">Gordon College Annex Campus</button>
                 </div>
 
                 <div class="section description-box">
@@ -477,7 +478,7 @@
         
         // Global state for request timeout and selected location
         window._requestTimeout = null;
-        window._pickupMarker = null; // This marker is for the campus destination, but is currently not used for the 'Choose Location' logic
+        window._pickupMarker = null; 
         window._selectedLocationKey = null; // The selected campus destination
 
         // Function to calculate fare (Minimum 50.00 Pesos)
@@ -486,7 +487,7 @@
             const BASE_FARE = 50.00;
             const RATE_PER_KM = 10.00;
             
-            if (distanceInMeters === 0) return BASE_FARE.toFixed(2);
+            if (distanceInMeters === 0 || isNaN(distanceInMeters)) return BASE_FARE.toFixed(2);
             
             const distanceInKm = distanceInMeters / 1000;
             const fare = BASE_FARE + (distanceInKm * RATE_PER_KM);
