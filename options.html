@@ -131,78 +131,82 @@
       }
     }
     
-    /* --- Mobile/Android/iOS Theme Fixes (Max Width 850px) --- */
+    /* --- Mobile/Android/iOS Responsiveness Fixes (Max Width 850px) --- */
     @media (max-width: 850px) {
-      /* 1. Adjust body padding */
+      /* 1. Adjust body for mobile scrolling and dark theme consistency */
       body {
         padding: 10px;
+        background: #1A2630; /* Use dark background for the overall page */
+        min-height: 100vh;
       }
     
-      /* 2. Remove fixed position and dark background for a scrollable mobile page */
+      /* 2. Make overlay stackable and scrollable, remove fixed positioning */
       .modal-overlay {
         position: static; 
         height: auto;
         min-height: 100vh;
         align-items: flex-start; 
-        background: #f5f5f5; 
+        background: transparent; /* Overlay is no longer needed since body is dark */
         padding: 20px 0; 
       }
       
       .modal-content {
         flex-direction: column; /* Stack cards vertically */
         gap: 20px;
-        padding: 0;
+        padding: 0 10px; /* Add slight horizontal padding */
         width: 100%;
+        box-sizing: border-box;
       }
     
-      /* 3. Mobile Card Styling (iOS-like White Card) */
+      /* 3. KEEP Dark Card Theme, apply mobile sizing and spacing */
       .card {
         width: 100%; 
         max-width: none; 
-        min-height: auto; 
+        min-height: auto; /* Allow height to shrink */
         padding: 25px 20px;
         box-sizing: border-box; 
         
-        background: #ffffff; /* White background for clean look */
-        color: #1A2630; /* Dark text for contrast */
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1); /* Subtle shadow */
-        border: 1px solid #e0e0e0; /* Subtle border */
-        transition: none; /* Disable desktop hover transition */
+        background: #29506a; /* KEEP original dark card color */
+        color: #fff; /* KEEP original white text color */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* KEEP dark shadow */
+        border: none;
+        transition: none; 
       }
+      
       .card:hover {
           transform: none; 
-          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       }
       
       .card-header {
-        color: #1A2630; 
+        color: #fff; /* KEEP white text */
         font-size: 32px;
       }
       
       .card hr {
-        border-color: #f0f0f0; /* Lighter separator */
-        margin: 0 0 20px 0; /* Reduced margin */
+        border-color: rgba(255, 255, 255, 0.1); /* Lighter divider for dark theme */
+        margin: 0 0 20px 0; /* Reduced margin for mobile */
       }
       
       .card-list li {
         font-size: 18px; 
-        margin-bottom: 20px; 
+        margin-bottom: 20px; /* Reduced margin for mobile */
       }
       
-      /* Mobile Check/Cross Styling (for light card) */
+      /* Revert Check/Cross Styling to original dark theme colors */
       .check {
-        background: #26c166; /* Green check */
-        color: white;
+        background: #202b34; 
+        color: #fff;
       }
       .cross {
-        background: #dc3545; /* Red cross */
-        color: white;
+        background: #a75d5d; 
+        color: #fff;
       }
     
-      /* 4. Use primary app color for the action button */
+      /* 4. Ensure button is visible and tappable */
       .card-btn {
         padding: 16px 20px;
-        background: #1671B7; /* Main blue button */
+        background: #1671B7; /* Use a primary blue for the action button */
         font-weight: 600;
         box-shadow: none; 
       }
