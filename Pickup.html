@@ -535,7 +535,50 @@
             }, 3000);
         }
 
-        // Initialize by selecting the first location and setting fare
+        // Campus routing logic
+        function showCampusRoute(fromKey) {
+    // fromKey: 'main' or 'annex'
+    // Route should go to the other campus
+    var toKey = fromKey === 'main' ? 'annex' : 'main';
+    var fromLoc = locations[fromKey].coords;
+    var toLoc = locations[toKey].coords;
+    if (window._campusRouteControl) {
+        map.removeControl(window._campusRouteControl);
+    }
+    window._campusRouteControl = L.Routing.control({
+        waypoints: [L.latLng(fromLoc[0], fromLoc[1]), L.latLng(toLoc[0], toLoc[1])],
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+            styles: [{color: '#1671B7', weight: 6, opacity: 0.85}]
+        },
+        createMarker: function(i, wp, nWps) {
+            if (i === 0) {
+                return L.marker(wp.latLng).bindPopup(locations[fromKey].name);
+            } else {
+                return L.marker(wp.latLng).bindPopup(locations[toKey].name);
+            }
+        }
+    }).addTo(map);
+}
+
+// Attach to campus buttons
+const mainBtn = document.getElementById('mainCampusBtn');
+const annexBtn = document.getElementById('annexCampusBtn');
+if (mainBtn && annexBtn) {
+    mainBtn.onclick = function() {
+        toggleLocation(this, 'main');
+        showCampusRoute('main');
+    };
+    annexBtn.onclick = function() {
+        toggleLocation(this, 'annex');
+        showCampusRoute('annex');
+    };
+}
+
+// Initialize by selecting the first location and setting fare
         document.getElementById('mainCampusBtn').click();
         updateFareDisplay();
     </script>
