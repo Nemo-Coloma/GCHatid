@@ -148,38 +148,38 @@
     }
 
     @media (max-width: 768px) {
-  /* 1. Mobile body adjustments */
-  body {
-    overflow-y: auto; /* Allow scrolling */
-    height: auto;
-    min-height: 100vh;
-  }
+      /* 1. Mobile body adjustments */
+      body {
+        overflow-y: auto; /* Allow scrolling */
+        height: auto;
+        min-height: 100vh;
+      }
 
-  /* 2. Hide large, fixed background elements to save space and processing power */
-  .bike-bg, .logo, .circle {
-    display: none;
-  }
+      /* 2. Hide large, fixed background elements to save space and processing power */
+      .bike-bg, .logo, .circle {
+        display: none;
+      }
 
-  /* 3. Re-position and resize the main container/form */
-  .container {
-    position: static; /* Remove absolute positioning */
-    top: auto;
-    right: auto;
-    width: 90%; /* Use most of the screen width */
-    max-width: 400px; /* Keep it centered and readable */
-    margin: 40px auto; /* Center the container */
-    padding-top: 50px; /* Add some space at the top */
-    align-items: stretch; /* Make inputs full width */
-  }
+      /* 3. Re-position and resize the main container/form */
+      .container {
+        position: static; /* Remove absolute positioning */
+        top: auto;
+        right: auto;
+        width: 90%; /* Use most of the screen width */
+        max-width: 400px; /* Keep it centered and readable */
+        margin: 40px auto; /* Center the container */
+        padding-top: 50px; /* Add some space at the top */
+        align-items: stretch; /* Make inputs full width */
+      }
 
-  /* 4. Adjust the title size for mobile */
-  .title {
-    font-size: 32px;
-    margin-bottom: 20px;
-  }
-}
+      /* 4. Adjust the title size for mobile */
+      .title {
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+    }
 
-  .link-row { display:flex; gap:12px; justify-content:center; align-items:center; margin-top:20px; }
+    .link-row { display:flex; gap:12px; justify-content:center; align-items:center; margin-top:20px; }
 
     /* iOS-style link/pill for admin/driver */
     .ios-link {
@@ -206,10 +206,70 @@
       transform: translateY(-1px) scale(0.995);
       box-shadow: 0 6px 14px rgba(0,0,0,0.35);
     }
+    
+    /* --- MODAL STYLING ADDED HERE --- */
+    #customOverlay {
+        background-color: rgba(0,0,0,0.7); 
+        display: none; /* Controlled by JS */
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+    }
+
+    /* Centered Modal Content */
+    #customOverlay > div {
+        background-color: #732026; /* Using a color from your landing page */
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        max-width: 350px;
+        width: 90%;
+        text-align: center;
+        transition: transform 0.3s ease;
+        transform: translateY(-50px);
+    }
+    
+    #customOverlay.visible > div {
+        transform: translateY(0);
+    }
+    
+    #customOverlay h3 {
+        color: #fff;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    #customOverlay p {
+        color: #c1c1c1;
+        margin-bottom: 25px;
+    }
+
+    #customOverlay .flex button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        background-color: #1671B7; /* Blue button */
+        color: white;
+        border: none;
+        width: 100%;
+    }
+    
+    #customOverlay .flex button:hover {
+        background-color: #125a91;
+    }
+    /* --- END MODAL STYLING --- */
   </style>
-      <script type="module">
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
+    // Configuration and Initialization (Unchanged)
     const firebaseConfig = {
       apiKey: "AIzaSyBeAfKyFcedf7z5vcPE-c9fKjpAMQyIhG4",
       authDomain: "gchatid.firebaseapp.com",
@@ -223,6 +283,43 @@
 
     const app = initializeApp(firebaseConfig);
 
+    /**
+     * Global function to display the custom notification modal.
+     */
+    window.showConfirmBox = function(message, confirmText = 'Okay') {
+        const overlay = document.getElementById('customOverlay');
+        overlay.innerHTML = ''; 
+
+        const modalHtml = `
+            <div>
+                <h3>⚠️ Login Error</h3>
+                <p>${message}</p>
+                <div class="flex">
+                    <button id="confirmBtn">${confirmText}</button>
+                </div>
+            </div>
+        `;
+        overlay.insertAdjacentHTML('afterbegin', modalHtml);
+        overlay.style.display = 'flex'; 
+        overlay.classList.add('visible');
+
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.style.display = 'none', 300); 
+        }
+
+        confirmBtn.addEventListener('click', closeModal);
+        
+        // Close if clicking outside the modal content
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       // Login handler
       const loginForm = document.getElementById('loginForm');
@@ -230,11 +327,10 @@
         e.preventDefault();
         const email = document.getElementById('emailInput').value;
         
-        // Check if email is a Gmail address
-        if (email.endsWith('@gmail.com')) {
+        if (email.endsWith('@gordoncollege.edu.ph')) {
           window.location.href = "options.html";
         } else {
-          alert('Please use a Gmail address');
+          window.showConfirmBox('Please use a Gordon College Domain Email ending in @gordoncollege.edu.ph');
         }
       };
     });
@@ -267,5 +363,7 @@
     </div>
     <form id="signupForm" style="margin-top:30px;"></form>
       
+    <div id="customOverlay"></div>
+
 </body>
 </html>
