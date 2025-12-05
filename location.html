@@ -376,7 +376,10 @@
             }
 
             /* **CRITICAL: Bring Make Request button closer** */
-         
+            .request-section {
+                padding-top: 5px; /* Reduced from 10px to 5px */
+                margin-top: auto; 
+            }
             
             .make-request-btn {
                 padding: 12px; 
@@ -420,10 +423,9 @@
 
             </div>
 
-            <div class="request-section">
-                
-                <button class="make-request-btn" onclick="handleMakeRequest()">Make Request</button>
-            </div>
+                <div class="request-section" style="margin-top: 8px; padding-top: 0;">
+                    <button class="make-request-btn" onclick="handleMakeRequest()">Make Request</button>
+                </div>
         </div>
     </div>
 
@@ -674,4 +676,3 @@
     </script>
 </body>
 </html>
-
