@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Login</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Set font to Inter for a modern look */
@@ -46,54 +45,89 @@
             opacity: 0.9;
         }
         @media (max-width: 500px) {
-  /* Scale down the large header for small phones */
-  .login-card h1 {
-    font-size: 3rem; /* 48px, down from 5xl (4rem/64px) */
-    margin-bottom: 2.5rem; /* Reduce bottom margin */
-  }
+            /* Scale down the large header for small phones */
+            .login-card h1 {
+                font-size: 3rem; /* 48px, down from 5xl (4rem/64px) */
+                margin-bottom: 2.5rem; /* Reduce bottom margin */
+            }
 
-  /* Reduce card padding slightly for very compact screens */
-  .login-card {
-    padding: 2rem; /* Reduced from p-8/32px to 2rem/32px for consistency */
-  }
+            /* Reduce card padding slightly for very compact screens */
+            .login-card {
+                padding: 2rem; /* Reduced from p-8/32px to 2rem/32px for consistency */
+            }
 
-  /* Make button height slightly more compact */
-  .login-button {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    font-size: 1.125rem; /* text-xl */
-  }
-}
+            /* Make button height slightly more compact */
+            .login-button {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+                font-size: 1.125rem; /* text-xl */
+            }
+        }
+        
+        /* --- Modal Styling using Tailwind classes --- */
+        #customOverlay {
+            background-color: rgba(0,0,0,0.7); 
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50; /* Tailwind z-50 */
+        }
+
+        /* Centered Modal Content - Custom style to use the login card background */
+        #customOverlay > div {
+            background-color: #11111e;
+            padding: 30px;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        /* Button style for the modal */
+        #customOverlay button {
+            background-color: #1f2937; /* Tailwind gray-800 */
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        #customOverlay button:hover {
+            background-color: #374151; /* Tailwind gray-700 */
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- Card is now significantly wider (max-w-lg = 512px) and has large rounded corners (rounded-3xl) -->
     <div class="login-card p-8 md:p-16 rounded-[28px] w-full max-w-lg">
 
-        <!-- Header Text: DRIVER -->
         <h1 class="text-white text-5xl font-extrabold tracking-widest text-center mb-12 uppercase">
             DRIVER
         </h1>
 
         <form id="loginForm">
             
-            <!-- Grouped Inputs Container -->
             <div class="input-group rounded-xl overflow-hidden shadow-2xl mb-12">
-                <!-- Email Input (Removed 'required') -->
                 <div>
-                    <input type="email" id="email" placeholder="Enter Admin Email"
+                    <input type="email" id="email" placeholder="Enter Gordon College Domain Email"
                            class="login-input w-full text-white placeholder-gray-400 p-4 pl-5 text-lg" />
                 </div>
     
-                <!-- Password Input (Removed 'required') -->
                 <div>
                     <input type="password" id="password" placeholder="Enter your Password"
                            class="login-input w-full text-white placeholder-gray-400 p-4 pl-5 text-lg" />
                 </div>
             </div>
 
-            <!-- Login Button -->
             <button type="submit"
                     class="login-button w-full text-white text-xl py-5 rounded-2xl shadow-xl">
                 LOGIN
@@ -101,14 +135,64 @@
         </form>
     </div>
 
+    <div id="customOverlay"></div>
+
     <script>
+        /**
+         * Global function to display the custom notification modal for login errors.
+         */
+        window.showLoginError = function(message, confirmText = 'Okay') {
+            const overlay = document.getElementById('customOverlay');
+            overlay.innerHTML = ''; 
+
+            const modalHtml = `
+                <div>
+                    <h3 class="text-white text-xl font-bold mb-3">⚠️ Login Error</h3>
+                    <p class="text-gray-400 mb-6">${message}</p>
+                    <div class="flex justify-center">
+                        <button id="confirmBtn">${confirmText}</button>
+                    </div>
+                </div>
+            `;
+            overlay.insertAdjacentHTML('afterbegin', modalHtml);
+            overlay.style.display = 'flex'; 
+            
+            // Add a class for visual transition if needed, though Tailwind makes it tricky with inline style
+            // We use setTimeout to allow display:flex to register before setting the event listeners
+            setTimeout(() => {
+                const confirmBtn = document.getElementById('confirmBtn');
+
+                const closeModal = () => {
+                    overlay.style.display = 'none'; 
+                }
+
+                confirmBtn.addEventListener('click', closeModal);
+                
+                // Close if clicking outside the modal content
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        closeModal();
+                    }
+                });
+            }, 10); // Small timeout to ensure DOM is ready
+        }
+
+
         // JavaScript to handle the form submission and navigation
         document.getElementById('loginForm').addEventListener('submit', function(event) {
-            // Prevent the default browser form submission (which would normally require form validation)
+            // Prevent the default browser form submission
             event.preventDefault();
 
-            // Navigate to the target page, fulfilling the request to bypass authentication on the client side
-            window.location.href = 'customer.html';
+            const email = document.getElementById('email').value;
+
+            // Check if email ends with the Gordon College domain
+            if (email.endsWith('@gordoncollege.edu.ph')) {
+                // Navigate to the target page on success
+                window.location.href = 'customer.html';
+            } else {
+                // Show custom error popup on failure
+                window.showLoginError('Only emails ending in @gordoncollege.edu.ph are allowed for driver login.');
+            }
         });
     </script>
 </body>
