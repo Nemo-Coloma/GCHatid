@@ -477,140 +477,147 @@
     <div id="customOverlay"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const applyDriverBtn = document.getElementById('applyDriverBtn');
-            const driversTableBody = document.getElementById('driversTableBody');
-            const addModal = document.getElementById('addDriverModal');
+    // Use an IIFE (Immediately Invoked Function Expression) to manage scope
+    // while allowing controlled exposure to the global window object.
+    (function() {
+        const driversTableBody = document.getElementById('driversTableBody');
+        const addModal = document.getElementById('addDriverModal');
+        const applyDriverBtn = document.getElementById('applyDriverBtn');
 
-            // Initial drivers data. 
-            let drivers = JSON.parse(localStorage.getItem('drivers')) || [
-                { id: 1, name: 'Jireh D. Bril', email: '2022012456@gordoncollege.edu.ph', bike: 'NMAX 150', plate: 'SBQ 0203', status: 'Active' },
-                { id: 2, name: 'Maria Santos', email: 'maria.s@example.com', bike: 'Honda PCX', plate: 'ABC 1234', status: 'Active' },
-                { id: 3, name: 'John Doe', email: 'john.d@example.com', bike: 'Yamaha Aerox', plate: 'XYZ 5678', status: 'Inactive' }
-            ];
+        // 1. DATA: Initialize drivers data
+        let drivers = JSON.parse(localStorage.getItem('drivers')) || [
+            { id: 1, name: 'Jireh D. Bril', email: '2022012456@gordoncollege.edu.ph', bike: 'NMAX 150', plate: 'SBQ 0203', status: 'Active' },
+            { id: 2, name: 'Maria Santos', email: 'maria.s@example.com', bike: 'Honda PCX', plate: 'ABC 1234', status: 'Active' },
+            { id: 3, name: 'John Doe', email: 'john.d@example.com', bike: 'Yamaha Aerox', plate: 'XYZ 5678', status: 'Inactive' }
+        ];
 
-            function renderDrivers() {
-                driversTableBody.innerHTML = '';
-                drivers.forEach((driver, index) => {
-                    const row = driversTableBody.insertRow();
-                    
-                    row.insertCell(0).textContent = driver.name;     
-                    row.insertCell(1).textContent = driver.email;    
-                    row.insertCell(2).textContent = driver.bike;     
-                    row.insertCell(3).textContent = driver.plate;    
-                    
-                    // Actions Cell (only delete button)
-                    const actionsCell = row.insertCell(4); 
-                    actionsCell.innerHTML = `
-                        <button class="action-btn delete-btn" onclick="showConfirmBox('Are you sure you want to delete driver ${driver.name}?', () => deleteDriver(${index}))">🗑️</button>
-                    `;
-                });
-                updateDriverCountDisplay();
-                localStorage.setItem('drivers', JSON.stringify(drivers));
-                localStorage.setItem('driversCount', drivers.length.toString()); 
-            }
+        // 2. HELPER FUNCTIONS
 
-            function addDriver() {
-                const name = document.getElementById('driverName').value;
-                const email = document.getElementById('driverEmail').value;
-                const bike = document.getElementById('driverBikeModel').value;
-                const plate = document.getElementById('driverPlateNo').value;
+        function updateDriverCountDisplay() {
+            document.getElementById('current-driver-count').textContent = drivers.length;
+            document.getElementById('total-driver-count').textContent = drivers.length;
+        }
 
-                if (name && email && bike && plate) {
-                    const newId = drivers.length > 0 ? drivers[drivers.length - 1].id + 1 : 1;
-                    drivers.push({ id: newId, name, email, bike, plate, status: 'Active' }); 
-                    renderDrivers();
-                    
-                    // Clear form and close modal
-                    document.getElementById('driverName').value = '';
-                    document.getElementById('driverAge').value = '';
-                    document.getElementById('driverEmail').value = '';
-                    document.getElementById('driverBikeModel').value = '';
-                    document.getElementById('driverPlateNo').value = '';
-                    addModal.style.display = 'none';
-                } else {
-                    // Using the new confirmation box style for simple errors too, for consistency
-                    showConfirmBox('Please fill in all required fields.', () => {}, 'Okay');
-                }
-            }
-
-            function deleteDriver(index) {
-                drivers.splice(index, 1);
-                renderDrivers();
-                // Simple message box logic is integrated into showConfirmBox
-                showConfirmBox('Driver successfully deleted.', () => {}, 'Got it!');
-            }
-
-            function updateDriverCountDisplay() {
-                document.getElementById('current-driver-count').textContent = drivers.length;
-                document.getElementById('total-driver-count').textContent = drivers.length;
-            }
+        function renderDrivers() {
+            driversTableBody.innerHTML = '';
             
-            // --- Custom Confirmation Box Implementation (Replaces confirm() and alert()) ---
-            
-            /**
-             * Displays a custom confirmation modal.
-             * @param {string} message - The message to display.
-             * @param {function} onConfirm - Function to call if confirmed (optional).
-             * @param {string} confirmText - Text for the confirmation button (defaults to 'Confirm').
-             * @param {string} cancelText - Text for the cancel button (optional).
-             */
-            window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
-                const overlay = document.getElementById('customOverlay');
-                overlay.innerHTML = ''; // Clear previous content
-
-                // Determine if this is a true confirmation (needs Yes/No) or a simple alert (needs OK)
-                const isConfirmAction = typeof onConfirm === 'function'; 
-                const title = isConfirmAction ? 'Confirm Deletion' : 'Notification';
-
-                const modalHtml = `
-                    <div>
-                        <h3>${title}</h3>
-                        <p>${message}</p>
-                        <div class="flex ${isConfirmAction ? 'justify-between' : 'justify-center'} gap-3">
-                            ${isConfirmAction ? 
-                                `<button id="cancelBtn">${cancelText}</button>` 
-                                : ''
-                            }
-                            <button id="confirmBtn">${confirmText}</button>
-                        </div>
-                    </div>
-                `;
-                overlay.insertAdjacentHTML('afterbegin', modalHtml);
-                overlay.style.display = 'flex'; // Show the overlay
-                overlay.classList.add('visible');
-
-                const confirmBtn = document.getElementById('confirmBtn');
-                const cancelBtn = document.getElementById('cancelBtn');
-
-                const closeModal = () => {
-                    overlay.classList.remove('visible');
-                    // Give a moment for transition before hiding display
-                    setTimeout(() => overlay.style.display = 'none', 300); 
-                }
-
-                confirmBtn.addEventListener('click', () => {
-                    closeModal();
-                    if (isConfirmAction) {
-                        onConfirm();
-                    }
-                });
-
-                if (cancelBtn) {
-                    cancelBtn.addEventListener('click', closeModal);
-                }
+            drivers.forEach((driver, index) => {
+                const row = driversTableBody.insertRow();
                 
-                // Close if clicking outside the modal content
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) {
-                        closeModal();
-                    }
-                });
+                row.insertCell(0).textContent = driver.name;     
+                row.insertCell(1).textContent = driver.email;    
+                row.insertCell(2).textContent = driver.bike;     
+                row.insertCell(3).textContent = driver.plate;    
+                
+                // Actions Cell
+                const actionsCell = row.insertCell(4); 
+                // Now, we call window.showConfirmBox, which is defined below.
+                // It correctly uses the globally available deleteDriver function.
+                actionsCell.innerHTML = `
+                    <button class="action-btn delete-btn" onclick="window.showConfirmBox('Are you sure you want to delete driver ${driver.name}?', () => window.deleteDriver(${index}), 'Delete')">🗑️</button>
+                `;
+            });
+
+            updateDriverCountDisplay();
+            localStorage.setItem('drivers', JSON.stringify(drivers));
+            localStorage.setItem('driversCount', drivers.length.toString()); 
+        }
+
+        function addDriver() {
+            const name = document.getElementById('driverName').value;
+            const email = document.getElementById('driverEmail').value;
+            const bike = document.getElementById('driverBikeModel').value;
+            const plate = document.getElementById('driverPlateNo').value;
+
+            if (name && email && bike && plate) {
+                const newId = drivers.length > 0 ? drivers[drivers.length - 1].id + 1 : 1;
+                drivers.push({ id: newId, name, email, bike, plate, status: 'Active' }); 
+                renderDrivers();
+                
+                // Clear form and close modal
+                document.getElementById('driverName').value = '';
+                document.getElementById('driverAge').value = '';
+                document.getElementById('driverEmail').value = '';
+                document.getElementById('driverBikeModel').value = '';
+                document.getElementById('driverPlateNo').value = '';
+                addModal.style.display = 'none';
+            } else {
+                window.showConfirmBox('Please fill in all required fields.', null, 'Okay');
+            }
+        }
+        
+        // 3. GLOBAL EXPOSURE: Functions required to be called from the HTML `onclick`
+        
+        /**
+         * Global function to handle the actual deletion and re-render the list.
+         * @param {number} index - The index of the driver to delete in the local array.
+         */
+        window.deleteDriver = function(index) {
+            drivers.splice(index, 1);
+            renderDrivers();
+            window.showConfirmBox('Driver successfully deleted.', null, 'Got it!');
+        }
+
+        /**
+         * Global function to display the custom confirmation modal.
+         */
+        window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
+            const overlay = document.getElementById('customOverlay');
+            overlay.innerHTML = ''; 
+
+            const isConfirmAction = typeof onConfirm === 'function'; 
+            const title = isConfirmAction ? 'Confirm Action' : 'Notification';
+
+            const modalHtml = `
+                <div>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <div style="display:flex; justify-content:${isConfirmAction ? 'space-between' : 'center'}; gap: 10px;">
+                        ${isConfirmAction ? 
+                            `<button id="cancelBtn">${cancelText}</button>` 
+                            : ''
+                        }
+                        <button id="confirmBtn">${confirmText}</button>
+                    </div>
+                </div>
+            `;
+            overlay.insertAdjacentHTML('afterbegin', modalHtml);
+            overlay.style.display = 'flex'; 
+            overlay.classList.add('visible');
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            const closeModal = () => {
+                overlay.classList.remove('visible');
+                setTimeout(() => overlay.style.display = 'none', 300); 
             }
 
+            confirmBtn.addEventListener('click', () => {
+                closeModal();
+                if (isConfirmAction && onConfirm) {
+                    onConfirm();
+                }
+            });
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeModal();
+                }
+            });
+        }
+
+        // 4. INITIALIZATION: Run when the DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
             applyDriverBtn.addEventListener('click', addDriver);
-            renderDrivers(); 
+            renderDrivers(); // Initial render
         });
-    </script>
+        
+    })(); // End of IIFE
+</script>
 </body>
 </html>
