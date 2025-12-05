@@ -22,9 +22,8 @@
       z-index: 1; /* behind the logo but above the circle */
       width: 1500px; /* adjust size as needed */
       height: auto;
-      opacity: 0.7; /* subtle effect */
+      opacity: 0.2; /* subtle effect */
       pointer-events: none; /* so it doesn't interfere */
-      opacity: 0.2;
     }
     .logo {
       position: absolute;
@@ -102,6 +101,8 @@
     .login-btn:hover {
       background: #125a91;
     }
+    
+    /* --- General Tablet/Desktop Responsiveness --- */
     @media (max-width: 900px) {
       .container {
         right: 5%;
@@ -112,12 +113,6 @@
         height: 500px;
         left: -35%;
         top: -17%;
-      }
-      .input-group {
-        width: 95vw;
-      }
-      .login-btn {
-        width: 95vw;
       }
       .logo img {
         width: 90px;
@@ -147,35 +142,38 @@
       }
     }
 
+    /* --- Primary Mobile/Android Responsiveness (768px and below) --- */
     @media (max-width: 768px) {
-      /* 1. Mobile body adjustments */
       body {
-        overflow-y: auto; /* Allow scrolling */
+        overflow-y: auto; 
         height: auto;
         min-height: 100vh;
       }
 
-      /* 2. Hide large, fixed background elements to save space and processing power */
       .bike-bg, .logo, .circle {
         display: none;
       }
 
-      /* 3. Re-position and resize the main container/form */
       .container {
-        position: static; /* Remove absolute positioning */
+        position: static; 
         top: auto;
         right: auto;
-        width: 90%; /* Use most of the screen width */
-        max-width: 400px; /* Keep it centered and readable */
-        margin: 40px auto; /* Center the container */
-        padding-top: 50px; /* Add some space at the top */
-        align-items: stretch; /* Make inputs full width */
+        width: 90%; 
+        max-width: 400px; 
+        margin: 40px auto; 
+        padding-top: 50px; 
+        align-items: stretch; 
       }
 
-      /* 4. Adjust the title size for mobile */
       .title {
         font-size: 32px;
         margin-bottom: 20px;
+      }
+      
+      /* Make inputs and button full width of the container */
+      .input-group, .login-btn {
+        width: 100%;
+        max-width: none; 
       }
     }
 
@@ -207,10 +205,10 @@
       box-shadow: 0 6px 14px rgba(0,0,0,0.35);
     }
     
-    /* --- MODAL STYLING ADDED HERE --- */
+    /* --- MODAL STYLING --- */
     #customOverlay {
         background-color: rgba(0,0,0,0.7); 
-        display: none; /* Controlled by JS */
+        display: none; 
         align-items: center;
         justify-content: center;
         position: fixed;
@@ -221,9 +219,8 @@
         z-index: 1000;
     }
 
-    /* Centered Modal Content */
     #customOverlay > div {
-        background-color: #732026; /* Using a color from your landing page */
+        background-color: #732026; 
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -255,7 +252,7 @@
         font-weight: bold;
         cursor: pointer;
         transition: background-color 0.2s;
-        background-color: #1671B7; /* Blue button */
+        background-color: #1671B7; 
         color: white;
         border: none;
         width: 100%;
@@ -264,7 +261,6 @@
     #customOverlay .flex button:hover {
         background-color: #125a91;
     }
-    /* --- END MODAL STYLING --- */
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
