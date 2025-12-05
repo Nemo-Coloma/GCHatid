@@ -44,7 +44,7 @@
             margin-bottom: 25px;
         }
 
-        /* --- Header Alignment (NEW) --- */
+        /* --- Header Alignment --- */
         .sidebar-header-row {
             display: flex;
             align-items: center;
@@ -129,7 +129,7 @@
         
         /* --- Back Button ICON Styling (Modified) --- */
         .back-button-container {
-            margin-bottom: 0; /* Important: remove bottom margin */
+            margin-bottom: 0; 
             text-align: left;
         }
 
@@ -138,14 +138,14 @@
             background: rgba(255, 255, 255, 0.1); 
             border: none;
             color: white;
-            font-size: 1.2em; /* Smaller icon size */
-            padding: 6px 12px; /* Reduced padding */
+            font-size: 1.2em; 
+            padding: 6px 12px; 
             border-radius: 50%;
             cursor: pointer;
             text-decoration: none;
             line-height: 1;
             transition: background-color 0.2s, color 0.2s;
-            margin-right: 15px; /* Space between button and heading */
+            margin-right: 15px; 
             flex-shrink: 0;
         }
 
@@ -235,7 +235,7 @@
             color: white;
             padding: 15px 20px;
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 6px 20px rgba(0, 0, 0, 0.4);
             opacity: 0;
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease-out; 
             z-index: 999;
@@ -256,7 +256,7 @@
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 4px 15px rgba(0, 0, 0, 0.4);
             z-index: 1001;
             text-align: center;
             font-weight: 500;
@@ -327,21 +327,22 @@
             .sidebar {
                 width: 100%; 
                 height: 60vh; 
-                padding: 15px; /* Reduced padding */
+                padding: 15px; 
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); 
-                overflow-y: hidden; /* **CRITICAL: Prevent scrolling** */
+                overflow-y: hidden; 
                 flex: none;
-                justify-content: flex-start; /* Ensure content starts from the top */
+                justify-content: flex-start; 
             }
 
-            /* 3. Reduce vertical spacing and compact elements */
+            /* 3. Significantly reduce vertical spacing and compact elements */
             
             .sidebar-header-row {
-                margin-bottom: 8px; /* Slightly reduced margin */
+                margin-bottom: 8px; 
             }
 
+            /* **Tighter fit for sections** */
             .section {
-                margin-bottom: 8px; /* Reduced section margin */
+                margin-bottom: 4px; /* Reduced from 8px to 4px */
             }
 
             .section h3 {
@@ -351,40 +352,37 @@
             }
             
             .pick-up-location-buttons {
-                margin-bottom: 8px !important; /* Reduced margin below buttons */
+                margin-bottom: 4px !important; /* Reduced margin below buttons */
             }
 
             .ios-campus-btn {
-                padding: 8px 10px; /* Reduced button padding */
+                padding: 8px 10px; 
                 font-size: 13px;
             }
             
-            .description-box {
-                flex-grow: 1; /* Allow description box to take minimal space */
-            }
-            
             #rideDescription {
-                min-height: 40px; /* Reduced minimum height */
-                max-height: 60px; /* Reduced maximum height */
-                padding: 8px; /* Reduced padding */
+                min-height: 40px; 
+                max-height: 60px; 
+                padding: 8px; 
             }
             
             .fare-display {
                 margin-top: 5px; 
-                padding: 6px; /* Reduced padding */
+                padding: 4px; /* Reduced padding */
             }
             
             .fare-display p {
                 font-size: 1.8em; 
             }
 
+            /* **CRITICAL: Bring Make Request button closer** */
             .request-section {
-                padding-top: 10px; 
+                padding-top: 5px; /* Reduced from 10px to 5px */
                 margin-top: auto; 
             }
             
             .make-request-btn {
-                padding: 12px; /* Reduced padding */
+                padding: 12px; 
                 font-size: 1em;
             }
         }
