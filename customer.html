@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* iOS Dark Mode Color Palette and Typography */
+        /* Android Dark/Material Minimalist Color Palette and Typography */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            /* Universal font stack, Roboto is the Material default */
+            font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
             margin: 0;
             overflow: hidden; 
             height: 100vh;
-            background-color: #000000; /* True black background */
+            background-color: #121212; /* Material Dark Surface 1 */
         }
         
         .main-wrapper {
@@ -23,17 +24,17 @@
         
         /* Map container */
         #map {
-            flex: 3; /* e.g., 75% of width */
+            flex: 3; 
             height: 100%;
             z-index: 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5); 
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4); 
         }
 
-        /* Sidebar/Panel for requests - Mimics an iOS card stack background */
+        /* Sidebar/Panel for requests - Material Dark Card Background */
         .sidebar {
             flex: 1; 
-            min-width: 350px; 
-            background-color: #1C1C1E; /* Deep charcoal/indigo background */
+            min-width: 300px; /* Reduced min-width */
+            background-color: #1E1E1E; /* Material Dark Surface 2 */
             color: white;
             display: flex;
             flex-direction: column;
@@ -42,160 +43,169 @@
 
         /* Header in the sidebar - Clean and flat */
         .sidebar-header {
-            padding: 18px 20px;
-            border-bottom: 0.5px solid #3A3A3C; 
+            padding: 16px 16px; /* Slightly reduced padding */
+            border-bottom: 1px solid #333333; /* Softer divider */
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        /* Back Button Icon Styling - iOS Chevron */
+        /* Back Button Styling - Minimalist pill */
         .back-button {
             display: inline-block;
-            background: #2C2C2E; 
-            color: #E5E5E5; 
-            font-size: 1.5em;
+            background: #242424; /* Card background color for subtle difference */
+            color: #E0E0E0; 
+            font-size: 0.9em;
             font-weight: 500;
-            padding: 2px 12px 2px 8px; 
-            border-radius: 9px; 
+            padding: 6px 12px; 
+            border-radius: 20px; /* Pill shape */
             cursor: pointer;
             text-decoration: none;
-            line-height: 1;
+            line-height: 1.2;
             transition: background-color 0.15s;
+            border: 1px solid #333333;
         }
         
         .back-button:active {
-            background-color: #4C4C4E;
+            background-color: #333333;
         }
 
-        /* Job Card Styling - Base */
+        /* Job Card Styling - Base (More minimalist/Material) */
         .job-card-base {
-            background-color: #2C2C2E; 
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); 
-            border: 1px solid #3A3A3C;
+            background-color: #242424; /* Material Card Surface */
+            border-radius: 8px; /* Slightly less rounded */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle Material elevation */
+            transition: box-shadow 0.15s;
+            margin: 8px 0; /* Compact vertical spacing */
         }
         
-        /* Styling for the Active Ride Card */
+        /* Styling for the Active Ride Card (Highlighted Accent) */
         .active-ride-card {
-            background-color: #14354D; 
-            border: 1px solid #0A84FF; 
+            background-color: #2C3539; /* Darker accent for active */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
         }
-
-        /* iOS Primary Action Button (Accept/Drop Off) */
+        
+        /* iOS Primary Action Button (Accept/Drop Off) -> Material Green/Teal */
         .take-order-btn {
-            background-color: #34C759; /* iOS Green for Accept */
-            color: white;
+            background-color: #03DAC5; /* Material Teal/Green for Accept */
+            color: #121212; /* Dark text for contrast */
             font-weight: 600; 
-            border-radius: 10px;
-            transition: background-color 0.1s;
+            border-radius: 6px;
+            transition: background-color 0.1s, box-shadow 0.1s;
         }
         
         /* Drop Off Button (Red) */
         .drop-off-btn {
-            background-color: #FF3B30; /* iOS Red */
+            background-color: #CF6679; /* Material Red/Error color */
             color: white;
             font-weight: 600;
-            border-radius: 10px;
-            transition: background-color 0.1s;
+            border-radius: 6px;
+            transition: background-color 0.1s, box-shadow 0.1s;
         }
         
-        .take-order-btn:active { background-color: #2BA84E; }
-        .drop-off-btn:active { background-color: #CC231B; }
+        .take-order-btn:active { background-color: #00A896; box-shadow: 0 0 10px rgba(3, 218, 197, 0.5); }
+        .drop-off-btn:active { background-color: #B00020; box-shadow: 0 0 10px rgba(207, 102, 121, 0.5); }
 
         .no-requests-message {
             text-align: center;
-            padding: 40px;
-            color: #8E8E93; 
+            padding: 30px 10px; /* Reduced padding */
+            color: #999999; /* Lighter gray */
         }
         
         /* Map Marker Custom Icon Styles */
-        .marker-pending { background-color: #FF3B30; } 
-        .marker-active { background-color: #0A84FF; } 
+        .marker-pending { background-color: #CF6679; } /* Material Red */
+        .marker-active { background-color: #64B5F6; } /* Material Blue */
 
         .pickup-icon > div {
              border-radius: 50%; 
-             width: 18px; 
-             height: 18px; 
-             border: 3px solid white; 
+             width: 16px; /* Slightly smaller marker */
+             height: 16px; 
+             border: 3px solid #1E1E1E; /* Sidebar background border */
              box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
         
         /* --- FARE DISPLAY on Card --- */
         .fare-badge {
-            background-color: #0A84FF; /* iOS Blue */
-            color: white;
+            background-color: #64B5F6; /* Material Blue */
+            color: #121212; /* Dark text for contrast */
             font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 1.1em;
+            padding: 3px 8px; /* Compact padding */
+            border-radius: 6px;
+            font-size: 0.9em;
             display: inline-block;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         
         /* --- Drop Off Success Modal --- */
         #fareMadeModal .modal-content {
-            background-color: #34C759; /* Green for Success */
-            border: 1px solid #2BA84E;
+            background-color: #00A896; /* Darker Success Green */
+            border: 1px solid #00897B;
         }
         #fareMadeModal .modal-title {
             color: white;
         }
+        /* Adjusted fare amount style for Material feel */
         #fareMadeModal .fare-amount {
-            font-size: 2.5em;
-            font-weight: 900;
+            font-size: 2.2em;
+            font-weight: 700;
             color: white;
             margin: 10px 0;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
+        #fareMadeModal .modal-ok-btn {
+            background-color: white;
+            color: #00A896;
+        }
+
+        /* Minimalist text styles */
+        .text-detail { color: #AAAAAA; font-size: 0.75rem; margin-bottom: 1px; }
+        .text-value { color: white; font-size: 1rem; font-weight: 500; }
+
+
+        /* --- MOBILE RESPONSIVENESS FIXES --- */
         @media (max-width: 768px) {
-  /* 1. Allow body to scroll and remove fixed height constraints */
-  body {
-    overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
-  }
+            body {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
 
-  /* 2. Stack map and sidebar vertically */
-  .main-wrapper {
-    flex-direction: column; 
-    height: auto; /* Override 100vh for stacking */
-  }
+            .main-wrapper {
+                flex-direction: column; 
+                height: auto; 
+            }
 
-  /* 3. Map takes the top half of the screen */
-  #map {
-    height: 50vh; /* 50% of the viewport height */
-    flex: none; /* Remove flex-grow */
-    width: 100%;
-    /* Add a shadow on the bottom to separate from the sidebar */
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5); 
-  }
+            #map {
+                height: 40vh; /* Reduced map size to 40% to give more room to the sidebar */
+                flex: none; 
+                width: 100%;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4); 
+            }
 
-  /* 4. Sidebar takes the bottom half and becomes full width */
-  .sidebar {
-    width: 100%; /* Full screen width */
-    min-width: 100%; /* Crucial: Override the desktop min-width of 350px */
-    height: 50vh; /* 50% of the viewport height */
-    flex: none;
-    overflow-y: auto; /* Enable vertical scrolling within the sidebar content */
-    border-top: 1px solid #3A3A3C;
-  }
+            .sidebar {
+                width: 100%; 
+                min-width: 100%; 
+                height: 60vh; /* Increased sidebar size to 60% */
+                flex: none;
+                overflow-y: auto; 
+                border-top: 1px solid #333333;
+            }
 
-  /* 5. Adjust header padding to be more compact */
-  .sidebar-header {
-    padding: 15px 10px;
-  }
-  
-  /* 6. Adjust card padding and margin */
-  #activeRideContainer, #incomingRequests {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-  
-  .job-card-base {
-    margin: 10px 0;
-  }
-}
+            /* Adjust header padding to be more compact */
+            .sidebar-header {
+                padding: 12px 10px;
+            }
+            
+            /* Ensure consistent internal padding */
+            #activeRideContainer, #incomingRequests {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .job-card-base {
+                margin: 8px 0;
+            }
+        }
         
     </style>
 </head>
@@ -206,25 +216,25 @@
         
         <div class="sidebar">
             <div class="sidebar-header">
-                <h1 class="text-2xl font-bold text-white">Ride Dispatch</h1>
+                <h1 class="text-xl font-bold text-white">Driver Dispatch</h1>
                 <a href="options.html" class="back-button" aria-label="Back to Options">
                     &#x2039; Back
                 </a>
             </div>
 
-            <div class="px-5 pt-5 pb-2">
-                <h2 class="text-lg font-semibold text-white">Active Ride</h2>
+            <div class="px-4 pt-4 pb-1">
+                <h2 class="text-base font-semibold text-gray-400 uppercase tracking-wider">Active Ride</h2>
             </div>
             <div id="activeRideContainer" class="px-4">
                 <div id="noActiveRideFallback" class="no-requests-message p-0">
-                    <p class="text-sm">No ride currently active.</p>
+                    <p class="text-sm">No ride currently active. Ready for new requests.</p>
                 </div>
                 </div>
             
             <div class="border-t border-gray-700 mx-4 my-2"></div>
             
-            <div class="px-5 pt-2 pb-2">
-                <h2 class="text-lg font-semibold text-white">New Requests Queue</h2>
+            <div class="px-4 pt-2 pb-1">
+                <h2 class="text-base font-semibold text-gray-400 uppercase tracking-wider">New Requests Queue</h2>
             </div>
             <div id="incomingRequests" class="p-4 flex-grow overflow-y-auto pt-0">
                 <div id="noRequestsFallback" class="no-requests-message">
@@ -249,10 +259,10 @@
     <div id="fareMadeModal" class="modal-overlay">
         <div class="modal-content p-8 max-w-xs w-full text-center">
             <h3 class="modal-title text-2xl font-bold mb-2">Ride Completed!</h3>
-            <p class="text-white text-lg">You just made:</p>
+            <p class="text-white text-base">You just made:</p>
             <p id="fareAmount" class="fare-amount">₱0.00</p>
             <button onclick="document.getElementById('fareMadeModal').style.display='none'" 
-                    class="modal-ok-btn w-full py-2 rounded-lg font-semibold bg-white text-green-500 hover:bg-gray-100">
+                    class="modal-ok-btn w-full py-2 rounded-lg font-semibold">
                 Awesome!
             </button>
         </div>
@@ -350,16 +360,15 @@
                 // Determine location and type
                 let pickupCoords;
                 let pickupName;
-                let destinationName = 'N/A';
-                let requestTitle = "REQUEST";
-                let extraDetails = "";
+                let destinationName = 'User Destination';
+                let requestTitle = "Simple Ride";
 
                 if (user_lat && user_lng) {
                     // Type: location.html (A to B ride from map click)
                     pickupCoords = [user_lat, user_lng];
                     pickupName = "User's Location (Map Click)";
                     destinationName = location;
-                    requestTitle = "A to B Ride";
+                    requestTitle = "Map-to-Location Ride";
                     
                 } else if (description) {
                     // Type: pahatid.html (B to A Delivery with Description)
@@ -367,14 +376,12 @@
                     pickupName = location;
                     destinationName = "User's Destination (Pahatid)";
                     requestTitle = "Pahatid Delivery";
-                    extraDetails = `<p class="text-xs text-gray-400 mt-2 mb-1">Description:</p>
-                                    <p class="text-sm text-gray-200">${description || 'N/A'}</p>`;
 
                 } else if (locations[location]) {
                     // Type: Pickup.html (B to A Ride from known location)
                     pickupCoords = locations[location];
                     pickupName = location;
-                    requestTitle = "Simple Pickup Ride";
+                    requestTitle = "Campus Pickup Ride";
                 }
 
                 if (!pickupCoords) return; // Skip invalid requests
@@ -387,8 +394,8 @@
                     icon: L.divIcon({ 
                         className: 'pickup-icon', 
                         html: iconHtml,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
+                        iconSize: [22, 22], /* Adjusted size */
+                        iconAnchor: [11, 11]
                     })
                 }).addTo(map).bindPopup(`Pick-up: ${pickupName} (Status: ${status.toUpperCase()})`);
 
@@ -402,19 +409,19 @@
                 }
 
 
-                // --- Card Rendering Logic ---
-                const statusColor = status === 'pending' ? 'text-red-400' : 'text-blue-400';
+                // --- Card Rendering Logic (Minimalist/Compact) ---
+                const statusColor = status === 'pending' ? 'text-red-300' : 'text-blue-300';
                 
                 let buttonHtml;
                 if (status === 'pending') {
                     buttonHtml = `<button onclick="acceptRequest('${id}')" 
-                                    class="take-order-btn w-full py-3 rounded-xl text-white">
+                                    class="take-order-btn w-full py-2 text-sm">
                                     Accept Ride
                                 </button>`;
                     hasPending = true;
                 } else if (status === 'accepted') {
                     buttonHtml = `<button onclick="dropOffPassenger('${id}')" 
-                                    class="drop-off-btn w-full py-3 rounded-xl text-white">
+                                    class="drop-off-btn w-full py-2 text-sm">
                                     Passenger Dropped Off
                                 </button>`;
                     hasActive = true;
@@ -423,20 +430,31 @@
                 }
 
                 const cardHtml = `
-                    <div id="request-${id}" class="job-card-base p-4 my-2 ${status === 'accepted' ? 'active-ride-card' : ''}">
-                        <h3 class="text-lg font-semibold ${statusColor} mb-2">${requestTitle}</h3>
+                    <div id="request-${id}" class="job-card-base p-3 ${status === 'accepted' ? 'active-ride-card' : ''}">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-base font-semibold ${statusColor}">${requestTitle}</h3>
+                            <span class="fare-badge">₱${fare}</span>
+                        </div>
                         
-                        <p class="text-xs text-gray-400 mb-1">Pick-up Location:</p>
-                        <p class="text-xl font-bold text-white mb-2">${pickupName}</p>
+                        <div class="grid grid-cols-2 gap-x-4 mb-2">
+                            <div>
+                                <p class="text-detail">PICKUP LOCATION</p>
+                                <p class="text-value">${pickupName}</p>
+                            </div>
+                            <div>
+                                <p class="text-detail">DESTINATION</p>
+                                <p class="text-value">${destinationName}</p>
+                            </div>
+                        </div>
                         
-                        <p class="text-xs text-gray-400 mt-3 mb-1">Destination:</p>
-                        <p class="text-lg text-gray-200">${destinationName}</p>
-                        
-                        ${extraDetails}
-                        
-                        <span class="fare-badge">FARE: ₱${fare}</span>
+                        ${description ? `
+                            <div class="mt-2">
+                                <p class="text-detail">DESCRIPTION</p>
+                                <p class="text-xs text-gray-300">${description}</p>
+                            </div>
+                        ` : ''}
 
-                        <div class="mt-4">
+                        <div class="mt-3">
                             ${buttonHtml}
                         </div>
                     </div>
