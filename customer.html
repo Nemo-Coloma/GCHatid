@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Android Dark/Material Minimalist Color Palette and Typography */
@@ -33,7 +34,7 @@
         /* Sidebar/Panel for requests - Material Dark Card Background */
         .sidebar {
             flex: 1; 
-            min-width: 300px; /* Reduced min-width */
+            min-width: 300px; 
             background-color: #1E1E1E; /* Material Dark Surface 2 */
             color: white;
             display: flex;
@@ -43,8 +44,8 @@
 
         /* Header in the sidebar - Clean and flat */
         .sidebar-header {
-            padding: 16px 16px; /* Slightly reduced padding */
-            border-bottom: 1px solid #333333; /* Softer divider */
+            padding: 16px 16px; 
+            border-bottom: 1px solid #333333; 
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,12 +54,12 @@
         /* Back Button Styling - Minimalist pill */
         .back-button {
             display: inline-block;
-            background: #242424; /* Card background color for subtle difference */
+            background: #242424; 
             color: #E0E0E0; 
             font-size: 0.9em;
             font-weight: 500;
             padding: 6px 12px; 
-            border-radius: 20px; /* Pill shape */
+            border-radius: 20px; 
             cursor: pointer;
             text-decoration: none;
             line-height: 1.2;
@@ -72,23 +73,23 @@
 
         /* Job Card Styling - Base (More minimalist/Material) */
         .job-card-base {
-            background-color: #242424; /* Material Card Surface */
-            border-radius: 8px; /* Slightly less rounded */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle Material elevation */
+            background-color: #242424; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
             transition: box-shadow 0.15s;
-            margin: 8px 0; /* Compact vertical spacing */
+            margin: 8px 0; 
         }
         
         /* Styling for the Active Ride Card (Highlighted Accent) */
         .active-ride-card {
-            background-color: #2C3539; /* Darker accent for active */
+            background-color: #2C3539; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
         }
         
         /* iOS Primary Action Button (Accept/Drop Off) -> Material Green/Teal */
         .take-order-btn {
-            background-color: #03DAC5; /* Material Teal/Green for Accept */
-            color: #121212; /* Dark text for contrast */
+            background-color: #03DAC5; 
+            color: #121212; 
             font-weight: 600; 
             border-radius: 6px;
             transition: background-color 0.1s, box-shadow 0.1s;
@@ -96,7 +97,7 @@
         
         /* Drop Off Button (Red) */
         .drop-off-btn {
-            background-color: #CF6679; /* Material Red/Error color */
+            background-color: #CF6679; 
             color: white;
             font-weight: 600;
             border-radius: 6px;
@@ -108,37 +109,57 @@
 
         .no-requests-message {
             text-align: center;
-            padding: 30px 10px; /* Reduced padding */
-            color: #999999; /* Lighter gray */
+            padding: 30px 10px; 
+            color: #999999; 
         }
         
         /* Map Marker Custom Icon Styles */
-        .marker-pending { background-color: #CF6679; } /* Material Red */
-        .marker-active { background-color: #64B5F6; } /* Material Blue */
+        .marker-pending { background-color: #CF6679; } 
+        .marker-active { background-color: #64B5F6; } 
 
         .pickup-icon > div {
              border-radius: 50%; 
-             width: 16px; /* Slightly smaller marker */
+             width: 16px; 
              height: 16px; 
-             border: 3px solid #1E1E1E; /* Sidebar background border */
+             border: 3px solid #1E1E1E; 
              box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
         
         /* --- FARE DISPLAY on Card --- */
         .fare-badge {
-            background-color: #64B5F6; /* Material Blue */
-            color: #121212; /* Dark text for contrast */
+            background-color: #64B5F6; 
+            color: #121212; 
             font-weight: bold;
-            padding: 3px 8px; /* Compact padding */
+            padding: 3px 8px; 
             border-radius: 6px;
             font-size: 0.9em;
             display: inline-block;
             margin-top: 5px;
         }
         
+        /* --- Modal Overlay Fix --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); 
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* CRITICAL: Must be higher than any map layer */
+        }
+        
+        .modal-content {
+            background-color: #242424; 
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
         /* --- Drop Off Success Modal --- */
         #fareMadeModal .modal-content {
-            background-color: #00A896; /* Darker Success Green */
+            background-color: #00A896; 
             border: 1px solid #00897B;
         }
         #fareMadeModal .modal-title {
@@ -155,6 +176,11 @@
         #fareMadeModal .modal-ok-btn {
             background-color: white;
             color: #00A896;
+        }
+        
+        /* Hide the default Leaflet Routing Machine itinerary boxes to keep it minimalist */
+        .leaflet-routing-container {
+            display: none !important;
         }
 
         /* Minimalist text styles */
@@ -176,7 +202,7 @@
             }
 
             #map {
-                height: 40vh; /* Reduced map size to 40% to give more room to the sidebar */
+                height: 40vh; 
                 flex: none; 
                 width: 100%;
                 box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4); 
@@ -185,7 +211,7 @@
             .sidebar {
                 width: 100%; 
                 min-width: 100%; 
-                height: 60vh; /* Increased sidebar size to 60% */
+                height: 60vh; 
                 flex: none;
                 overflow-y: auto; 
                 border-top: 1px solid #333333;
@@ -269,6 +295,8 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    
     <script>
         // Leaflet Map Initialization
         const map = L.map('map').setView([14.8314775, 120.2819695], 16); 
@@ -280,12 +308,18 @@
         // Map to hold all request markers
         const requestMarkers = {};
 
+        // 3. GLOBAL ROUTING VARIABLE
+        let routingControl = null;
+
         // Coordinates for common locations (must match locations used in all customer files)
         const locations = {
             'Gordon College Main Campus': [14.8324, 120.2833],
             'Gordon College ANNEX Campus': [14.8372648, 120.2798648]
         };
         
+        // Coordinates for a common driver starting point (replace with actual driver location logic)
+        const driverLocation = [14.8314775, 120.2819695]; // Example: Near the middle of the two campuses
+
         // --- Utility Functions ---
 
         function showMessageBox(message, title = 'Notification') {
@@ -305,6 +339,32 @@
 
         function generateUniqueId() {
              return Date.now() + Math.random().toString(36).substring(2, 9);
+        }
+
+        // --- Routing Function ---
+        function showRoute(startCoords, endCoords) {
+            // Remove previous route if it exists
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+
+            // Create new routing control
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(startCoords[0], startCoords[1]), // Start/Pickup (Driver to Pickup or Pickup to Destination)
+                    L.latLng(endCoords[0], endCoords[1])   // End/Destination
+                ],
+                routeWhileDragging: false,
+                createMarker: function(i, waypoint, n) {
+                    // Customize markers to be invisible or use custom icons if needed
+                    return null;
+                },
+                lineOptions: {
+                    styles: [{ color: '#64B5F6', weight: 6, opacity: 0.8 }] // Material Blue line
+                },
+                autoRoute: true, // Automatically fetch and show the route
+                language: 'en'
+            }).addTo(map);
         }
         
         // --- Core Dispatch Logic ---
@@ -347,6 +407,7 @@
 
             let hasPending = false;
             let hasActive = false;
+            let activeRequest = null;
 
             // Clear map markers before re-rendering
             Object.values(requestMarkers).forEach(marker => map.removeLayer(marker));
@@ -359,13 +420,15 @@
                 
                 // Determine location and type
                 let pickupCoords;
+                let destinationCoords;
                 let pickupName;
                 let destinationName = 'User Destination';
                 let requestTitle = "Simple Ride";
 
                 if (user_lat && user_lng) {
                     // Type: location.html (A to B ride from map click)
-                    pickupCoords = [user_lat, user_lng];
+                    pickupCoords = [parseFloat(user_lat), parseFloat(user_lng)];
+                    destinationCoords = locations[location];
                     pickupName = "User's Location (Map Click)";
                     destinationName = location;
                     requestTitle = "Map-to-Location Ride";
@@ -373,13 +436,15 @@
                 } else if (description) {
                     // Type: pahatid.html (B to A Delivery with Description)
                     pickupCoords = locations[location];
+                    destinationCoords = [14.8314775, 120.2819695]; // Assuming delivery destination is the driver's location (center)
                     pickupName = location;
-                    destinationName = "User's Destination (Pahatid)";
+                    destinationName = "Driver's Location (Pahatid)";
                     requestTitle = "Pahatid Delivery";
 
                 } else if (locations[location]) {
                     // Type: Pickup.html (B to A Ride from known location)
                     pickupCoords = locations[location];
+                    destinationCoords = [14.8314775, 120.2819695]; // Assuming destination is a default drop-off point/driver center
                     pickupName = location;
                     requestTitle = "Campus Pickup Ride";
                 }
@@ -404,6 +469,8 @@
                 // Set map view to the accepted ride or the newest pending ride
                 if (status === 'accepted') {
                      map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
+                     hasActive = true;
+                     activeRequest = { id, pickupCoords, destinationCoords, status };
                 } else if (!hasActive && status === 'pending' && !hasPending) {
                      map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
                 }
@@ -424,7 +491,6 @@
                                     class="drop-off-btn w-full py-2 text-sm">
                                     Passenger Dropped Off
                                 </button>`;
-                    hasActive = true;
                 } else {
                     return; // Do not render completed requests
                 }
@@ -467,35 +533,71 @@
                     incomingContainer.insertAdjacentHTML('beforeend', cardHtml);
                 }
             });
+            
+            // Re-draw route for the active ride (in case of refresh)
+            if (activeRequest) {
+                // First route: Driver Location to Pickup
+                showRoute(driverLocation, activeRequest.pickupCoords);
+            } else if (routingControl) {
+                // Clear route if no active request
+                 map.removeControl(routingControl);
+                 routingControl = null;
+            }
+
 
             // Update fallbacks
             document.getElementById('noRequestsFallback').style.display = hasPending ? 'none' : 'block';
             document.getElementById('noActiveRideFallback').style.display = hasActive ? 'none' : 'block';
         }
         
-        // 3. Action: Driver Accepts a Ride
+        // 3. Action: Driver Accepts a Ride - NOW INCLUDES ROUTING LOGIC
         function acceptRequest(id) {
             const queue = getRequestsQueue();
             const activeId = queue.find(req => req.status === 'accepted');
+            const requestToAccept = queue.find(req => req.id === id);
 
             if (activeId) {
                 showMessageBox("You must complete the current active ride before accepting a new one.", "Limit Reached");
                 return;
             }
             
+            if (!requestToAccept) return;
+
+
+            // --- ROUTING LOGIC EXECUTION ---
+            let pickupCoords, destinationCoords;
+            const { location, description, user_lat, user_lng } = requestToAccept;
+
+            if (user_lat && user_lng) {
+                pickupCoords = [parseFloat(user_lat), parseFloat(user_lng)];
+                destinationCoords = locations[location];
+            } else if (description || locations[location]) {
+                pickupCoords = locations[location];
+                destinationCoords = [14.8314775, 120.2819695]; // Default destination
+            }
+
+            if (pickupCoords) {
+                // Route 1: DRIVER to PICKUP Location
+                showRoute(driverLocation, pickupCoords);
+            }
+            // --- END ROUTING LOGIC ---
+            
             const updatedQueue = queue.map(req => {
                 if (req.id === id) {
                     req.status = 'accepted';
+                    // Store route info temporarily (optional, mainly for the next phase)
+                    req.pickupCoords = pickupCoords;
+                    req.destinationCoords = destinationCoords;
                 }
                 return req;
             });
             
             saveRequestsQueue(updatedQueue);
-            showMessageBox(`Ride accepted! Navigate to the pick-up location.`, "Ride Accepted");
+            showMessageBox(`Ride accepted! Navigate to the pick-up location. The route has been marked on the map.`, "Ride Accepted");
             renderDashboard(); 
         }
 
-        // 4. Action: Driver Drops Off Passenger (Completes the Ride)
+        // 4. Action: Driver Drops Off Passenger (Completes the Ride) - NOW CLEARS ROUTE
         function dropOffPassenger(id) {
             const queue = getRequestsQueue();
             const completedRequest = queue.find(req => req.id === id);
@@ -511,10 +613,32 @@
 
             saveRequestsQueue(updatedQueue);
             
-            // 4c. Update dashboard after the user closes the pop-up (or immediately if you prefer)
-            // We use a small delay here to ensure the pop-up is visible first.
+            // 4c. Remove the route from the map
+            if (routingControl) {
+                 map.removeControl(routingControl);
+                 routingControl = null;
+            }
+
+            // 4d. Update dashboard after the user closes the pop-up (or immediately if you prefer)
             setTimeout(renderDashboard, 500); 
         }
+        
+        // --- BONUS: A function to switch the route from Pickup to Destination. ---
+        // You can link this to a new button on the active card (e.g., "Arrived at Pickup, Show Destination Route")
+        function switchRouteToDestination(id) {
+            const queue = getRequestsQueue();
+            const activeRequest = queue.find(req => req.id === id && req.status === 'accepted');
+
+            if (!activeRequest || !activeRequest.pickupCoords || !activeRequest.destinationCoords) {
+                showMessageBox("Cannot switch route: Active ride data is incomplete.", "Error");
+                return;
+            }
+
+            // Route 2: PICKUP to DESTINATION
+            showRoute(activeRequest.pickupCoords, activeRequest.destinationCoords);
+            showMessageBox("Route switched! Now navigating to the final destination.", "Destination Route Active");
+        }
+
 
     </script>
 </body>
