@@ -30,7 +30,7 @@
 
         .sidebar {
             width: 400px; 
-            background-color: #2c4a69; /* Dark blue background */
+            background-color: #0f2336; /* Dark blue background */
             color: white;
             padding: 25px 20px; /* Increased top/bottom padding */
             box-sizing: border-box;
@@ -603,8 +603,9 @@
             
             const newRequest = {
                 id: generateUniqueId(),
-                pickup_coords: [window._userPinnedLocation.lat, window._userPinnedLocation.lng],
-                destination: loc.name,
+                user_lat: window._userPinnedLocation.lat,
+                user_lng: window._userPinnedLocation.lng,
+                location: loc.name,
                 description: rideDescription, 
                 fare: fareText, 
                 timestamp: new Date().toISOString(),
@@ -616,29 +617,48 @@
             queue.push(newRequest);
             saveRequestsQueue(queue);
             
-            // 3. Show the waiting modal (Simulation)
+            // 3. Show the waiting modal
             document.getElementById('waitingModal').style.display = 'flex';
             document.getElementById('waitingMessage').textContent = `Requesting Ride: ${fareText}...`;
             
-            // 4. Simulate a successful rider match after 3 seconds
-            window._requestTimeout = setTimeout(() => {
-                // Change modal message before closing
-                document.getElementById('waitingMessage').textContent = 'Rider Found! Your request has been queued for a driver.';
+            // 4. Poll for driver acceptance instead of automatic timeout
+            window._currentRequestId = newRequest.id;
+            window._requestTimeout = setInterval(() => {
+                // Check if the driver accepted the request by looking for 'accepted' status
+                const allRequests = getRequestsQueue();
+                const acceptedRequest = allRequests.find(req => req.id === window._currentRequestId && req.status === 'accepted');
                 
-                // Close modal after a small pause
-                setTimeout(() => {
-                    closeWaitingModal();
-                    // Show the "Rider is on its way" notification
-                    showRiderFoundNotification();
-                }, 500); 
-
-            }, 3000); // 3 seconds simulation time
+                if (acceptedRequest) {
+                    // Driver accepted! Clear the interval and show notification
+                    clearInterval(window._requestTimeout);
+                    
+                    // Update modal message
+                    document.getElementById('waitingMessage').textContent = 'Driver accepted your request!';
+                    
+                    // Close modal after a pause
+                    setTimeout(() => {
+                        closeWaitingModal();
+                        // Show the "Rider is on its way" notification
+                        showRiderFoundNotification();
+                    }, 1000);
+                }
+            }, 500); // Check every 500ms for acceptance
         }
 
         function cancelRequest() {
+            // Clear both timeout and interval in case either is running
             clearTimeout(window._requestTimeout);
+            clearInterval(window._requestTimeout);
+            
+            // Remove the request from the queue
+            if (window._currentRequestId) {
+                const queue = getRequestsQueue();
+                const filteredQueue = queue.filter(req => req.id !== window._currentRequestId);
+                saveRequestsQueue(filteredQueue);
+                window._currentRequestId = null;
+            }
+            
             closeWaitingModal();
-            // In a real app, you'd need to send a cancel request to the server.
             showAlert('Request cancelled.');
         }
 
