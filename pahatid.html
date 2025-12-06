@@ -378,20 +378,20 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         // Leaflet Map Initialization (kept simple)
-        var map = L.map('map').setView([14.8314775, 120.2819695], 16); 
+        var map = L.map('map').setView([14.8327253, 120.2796366], 17); 
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        L.marker([14.8314775, 120.2819695]).addTo(map)
+        L.marker([14.8327253, 120.2796366]).addTo(map)
             .bindPopup('Olongapo City Center')
             .openPopup();
 
         // Coordinates for common locations (must match locations used in all files)
         const locations = {
-            'main': { name: 'Gordon College Main Campus', coords: [14.8324, 120.2833] },
-            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8372648, 120.2798648] }
+            'main': { name: 'Gordon College Main Campus', coords: [14.8327253, 120.2796366] },
+            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8373148, 120.2771703] }
         };
         
         // Global state for request timeout and selected location
