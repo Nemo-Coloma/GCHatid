@@ -148,7 +148,7 @@
             display: none; 
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* CRITICAL: Must be higher than any map layer */
+            z-index: 1000; 
         }
         
         .modal-content {
@@ -235,7 +235,7 @@
         
     </style>
 </head>
-<body onload="initializeRequests(); setInterval(renderDashboard, 3000)">
+<body onload="initializeRequests(); setInterval(periodicDashboardUpdate, 3000)">
     <div class="main-wrapper">
         
         <div id="map"></div>
@@ -305,20 +305,16 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Map to hold all request markers
         const requestMarkers = {};
-
-        // 3. GLOBAL ROUTING VARIABLE
         let routingControl = null;
 
-        // Coordinates for common locations (must match locations used in all customer files)
         const locations = {
             'Gordon College Main Campus': [14.8324, 120.2833],
             'Gordon College ANNEX Campus': [14.8372648, 120.2798648]
         };
         
-        // Coordinates for a common driver starting point (replace with actual driver location logic)
-        const driverLocation = [14.8314775, 120.2819695]; // Example: Near the middle of the two campuses
+        // Coordinates for a common driver starting point
+        const driverLocation = [14.8314775, 120.2819695]; 
 
         // --- Utility Functions ---
 
@@ -341,37 +337,77 @@
              return Date.now() + Math.random().toString(36).substring(2, 9);
         }
 
-        // --- Routing Function ---
         function showRoute(startCoords, endCoords) {
-            // Remove previous route if it exists
             if (routingControl) {
                 map.removeControl(routingControl);
             }
 
-            // Create new routing control
             routingControl = L.Routing.control({
                 waypoints: [
-                    L.latLng(startCoords[0], startCoords[1]), // Start/Pickup (Driver to Pickup or Pickup to Destination)
-                    L.latLng(endCoords[0], endCoords[1])   // End/Destination
+                    L.latLng(startCoords[0], startCoords[1]), 
+                    L.latLng(endCoords[0], endCoords[1])  
                 ],
                 routeWhileDragging: false,
                 createMarker: function(i, waypoint, n) {
-                    // Customize markers to be invisible or use custom icons if needed
                     return null;
                 },
                 lineOptions: {
-                    styles: [{ color: '#64B5F6', weight: 6, opacity: 0.8 }] // Material Blue line
+                    styles: [{ color: '#64B5F6', weight: 6, opacity: 0.8 }] 
                 },
-                autoRoute: true, // Automatically fetch and show the route
+                autoRoute: true, 
                 language: 'en'
             }).addTo(map);
+        }
+
+        /**
+         * NEW: Checks the queue for pending requests whose customer has disconnected.
+         */
+        function checkAndCleanQueue() {
+            let queue = getRequestsQueue();
+            let cleanedQueue = [];
+            let wasCleaned = false;
+
+            for (const request of queue) {
+                // Only check requests that are PENDING and have a linkable customer session ID
+                if (request.status === 'pending' && request.customer_session_id) {
+                    
+                    // The key to check is unique for each customer/request
+                    const heartbeatKey = `request_heartbeat_${request.customer_session_id}`;
+                    const customerActiveFlag = localStorage.getItem(heartbeatKey);
+
+                    if (!customerActiveFlag) {
+                        // Customer has closed the tab or explicitly cancelled (flag removed)
+                        console.log(`Request ${request.id} removed (customer disconnected/cancelled).`);
+                        wasCleaned = true;
+                    } else {
+                        // Customer is still waiting, keep the request
+                        cleanedQueue.push(request);
+                    }
+                } else {
+                    // Keep accepted, completed, or un-linkable requests
+                    cleanedQueue.push(request);
+                }
+            }
+
+            if (wasCleaned) {
+                saveRequestsQueue(cleanedQueue);
+            }
+        }
+        
+        // This function will run periodically
+        function periodicDashboardUpdate() {
+            checkAndCleanQueue();
+            renderDashboard();
         }
         
         // --- Core Dispatch Logic ---
 
-        // 1. Initialize: Checks for a new single request item (from customer files) and queues it up.
+        // 1. Initialize: Checks for a new single request item and queues it up.
         function initializeRequests() {
+            // Note: The customer page MUST now store a 'customer_temp_id' in localStorage
             const pendingJson = localStorage.getItem('pending_request');
+            const tempCustomerId = localStorage.getItem('customer_temp_id');
+            
             if (pendingJson) {
                 try {
                     const newRequest = JSON.parse(pendingJson);
@@ -379,25 +415,33 @@
                     // Assign a unique ID and initial status
                     newRequest.id = generateUniqueId();
                     newRequest.status = 'pending'; 
+                    // Link the request to the customer's temporary ID for the heartbeat check
+                    newRequest.customer_session_id = tempCustomerId || newRequest.id;
 
                     const queue = getRequestsQueue();
                     queue.push(newRequest);
                     saveRequestsQueue(queue);
                     
-                    // Clear the old single item so the customer can make another new request
+                    // Clear the temporary keys to allow a new submission
                     localStorage.removeItem('pending_request'); 
+                    localStorage.removeItem('customer_temp_id');
+
+                    // If the customer page correctly set the heartbeat, it will now use the format:
+                    // localStorage.setItem(`request_heartbeat_${tempCustomerId}`, 'active');
                     
                 } catch(e) {
                     console.error("Error parsing or queuing new request:", e);
                     localStorage.removeItem('pending_request');
+                    localStorage.removeItem('customer_temp_id');
                 }
             }
-            // Start the dashboard render loop
             renderDashboard();
         }
 
         // 2. Render: Updates the UI based on the request queue status
         function renderDashboard() {
+            // ... (rest of the renderDashboard logic is the same)
+            // The routing and rendering logic remains the same as the previous step
             const queue = getRequestsQueue();
             const incomingContainer = document.getElementById('incomingRequests');
             const activeContainer = document.getElementById('activeRideContainer');
@@ -409,16 +453,12 @@
             let hasActive = false;
             let activeRequest = null;
 
-            // Clear map markers before re-rendering
             Object.values(requestMarkers).forEach(marker => map.removeLayer(marker));
-            // Reset the marker map
             Object.keys(requestMarkers).forEach(key => delete requestMarkers[key]);
-
 
             queue.forEach(request => {
                 const { id, status, location, description, user_lat, user_lng, fare } = request;
                 
-                // Determine location and type
                 let pickupCoords;
                 let destinationCoords;
                 let pickupName;
@@ -426,7 +466,6 @@
                 let requestTitle = "Simple Ride";
 
                 if (user_lat && user_lng) {
-                    // Type: location.html (A to B ride from map click)
                     pickupCoords = [parseFloat(user_lat), parseFloat(user_lng)];
                     destinationCoords = locations[location];
                     pickupName = "User's Location (Map Click)";
@@ -434,24 +473,21 @@
                     requestTitle = "Map-to-Location Ride";
                     
                 } else if (description) {
-                    // Type: pahatid.html (B to A Delivery with Description)
                     pickupCoords = locations[location];
-                    destinationCoords = [14.8314775, 120.2819695]; // Assuming delivery destination is the driver's location (center)
+                    destinationCoords = [14.8314775, 120.2819695]; 
                     pickupName = location;
                     destinationName = "Driver's Location (Pahatid)";
                     requestTitle = "Pahatid Delivery";
 
                 } else if (locations[location]) {
-                    // Type: Pickup.html (B to A Ride from known location)
                     pickupCoords = locations[location];
-                    destinationCoords = [14.8314775, 120.2819695]; // Assuming destination is a default drop-off point/driver center
+                    destinationCoords = [14.8314775, 120.2819695]; 
                     pickupName = location;
                     requestTitle = "Campus Pickup Ride";
                 }
 
-                if (!pickupCoords) return; // Skip invalid requests
+                if (!pickupCoords) return; 
 
-                // --- Map Marker Logic ---
                 const markerColorClass = status === 'pending' ? 'marker-pending' : 'marker-active';
                 const iconHtml = `<div class="pickup-icon ${markerColorClass}"></div>`;
 
@@ -459,14 +495,13 @@
                     icon: L.divIcon({ 
                         className: 'pickup-icon', 
                         html: iconHtml,
-                        iconSize: [22, 22], /* Adjusted size */
+                        iconSize: [22, 22], 
                         iconAnchor: [11, 11]
                     })
                 }).addTo(map).bindPopup(`Pick-up: ${pickupName} (Status: ${status.toUpperCase()})`);
 
-                requestMarkers[id] = marker; // Store the marker reference
+                requestMarkers[id] = marker; 
                 
-                // Set map view to the accepted ride or the newest pending ride
                 if (status === 'accepted') {
                      map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
                      hasActive = true;
@@ -475,8 +510,6 @@
                      map.flyTo(pickupCoords, 16, { animate: true, duration: 1.5 });
                 }
 
-
-                // --- Card Rendering Logic (Minimalist/Compact) ---
                 const statusColor = status === 'pending' ? 'text-red-300' : 'text-blue-300';
                 
                 let buttonHtml;
@@ -492,7 +525,7 @@
                                     Passenger Dropped Off
                                 </button>`;
                 } else {
-                    return; // Do not render completed requests
+                    return; 
                 }
 
                 const cardHtml = `
@@ -527,30 +560,25 @@
                 `;
 
                 if (status === 'accepted') {
-                    // Only one active ride is displayed
                     activeContainer.innerHTML = cardHtml;
                 } else if (status === 'pending') {
                     incomingContainer.insertAdjacentHTML('beforeend', cardHtml);
                 }
             });
             
-            // Re-draw route for the active ride (in case of refresh)
             if (activeRequest) {
-                // First route: Driver Location to Pickup
+                // Route 1: Driver Location to Pickup
                 showRoute(driverLocation, activeRequest.pickupCoords);
             } else if (routingControl) {
-                // Clear route if no active request
                  map.removeControl(routingControl);
                  routingControl = null;
             }
 
-
-            // Update fallbacks
             document.getElementById('noRequestsFallback').style.display = hasPending ? 'none' : 'block';
             document.getElementById('noActiveRideFallback').style.display = hasActive ? 'none' : 'block';
         }
         
-        // 3. Action: Driver Accepts a Ride - NOW INCLUDES ROUTING LOGIC
+        // 3. Action: Driver Accepts a Ride
         function acceptRequest(id) {
             const queue = getRequestsQueue();
             const activeId = queue.find(req => req.status === 'accepted');
@@ -563,29 +591,32 @@
             
             if (!requestToAccept) return;
 
+            // Clear the customer's heartbeat flag immediately upon acceptance to prevent it from being removed
+            // if the customer decides to close the tab after the ride is accepted.
+            if (requestToAccept.customer_session_id) {
+                 localStorage.removeItem(`request_heartbeat_${requestToAccept.customer_session_id}`);
+            }
 
-            // --- ROUTING LOGIC EXECUTION ---
             let pickupCoords, destinationCoords;
             const { location, description, user_lat, user_lng } = requestToAccept;
 
+            // Coordinate logic remains the same
             if (user_lat && user_lng) {
                 pickupCoords = [parseFloat(user_lat), parseFloat(user_lng)];
                 destinationCoords = locations[location];
             } else if (description || locations[location]) {
                 pickupCoords = locations[location];
-                destinationCoords = [14.8314775, 120.2819695]; // Default destination
+                destinationCoords = [14.8314775, 120.2819695]; 
             }
 
             if (pickupCoords) {
                 // Route 1: DRIVER to PICKUP Location
                 showRoute(driverLocation, pickupCoords);
             }
-            // --- END ROUTING LOGIC ---
             
             const updatedQueue = queue.map(req => {
                 if (req.id === id) {
                     req.status = 'accepted';
-                    // Store route info temporarily (optional, mainly for the next phase)
                     req.pickupCoords = pickupCoords;
                     req.destinationCoords = destinationCoords;
                 }
@@ -597,48 +628,27 @@
             renderDashboard(); 
         }
 
-        // 4. Action: Driver Drops Off Passenger (Completes the Ride) - NOW CLEARS ROUTE
+        // 4. Action: Driver Drops Off Passenger (Completes the Ride)
         function dropOffPassenger(id) {
             const queue = getRequestsQueue();
             const completedRequest = queue.find(req => req.id === id);
 
             if (!completedRequest) return;
             
-            // 4a. Show fare made pop-up
             document.getElementById('fareAmount').textContent = `₱${completedRequest.fare}`;
             document.getElementById('fareMadeModal').style.display = 'flex';
             
-            // 4b. Filter out the completed request from the queue
             const updatedQueue = queue.filter(req => req.id !== id);
 
             saveRequestsQueue(updatedQueue);
             
-            // 4c. Remove the route from the map
             if (routingControl) {
                  map.removeControl(routingControl);
                  routingControl = null;
             }
 
-            // 4d. Update dashboard after the user closes the pop-up (or immediately if you prefer)
             setTimeout(renderDashboard, 500); 
         }
-        
-        // --- BONUS: A function to switch the route from Pickup to Destination. ---
-        // You can link this to a new button on the active card (e.g., "Arrived at Pickup, Show Destination Route")
-        function switchRouteToDestination(id) {
-            const queue = getRequestsQueue();
-            const activeRequest = queue.find(req => req.id === id && req.status === 'accepted');
-
-            if (!activeRequest || !activeRequest.pickupCoords || !activeRequest.destinationCoords) {
-                showMessageBox("Cannot switch route: Active ride data is incomplete.", "Error");
-                return;
-            }
-
-            // Route 2: PICKUP to DESTINATION
-            showRoute(activeRequest.pickupCoords, activeRequest.destinationCoords);
-            showMessageBox("Route switched! Now navigating to the final destination.", "Destination Route Active");
-        }
-
 
     </script>
 </body>
