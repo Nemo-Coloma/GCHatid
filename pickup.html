@@ -378,7 +378,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         // Leaflet Map Initialization (kept simple)
-        var map = L.map('map').setView([14.8314775, 120.2819695], 16); 
+        var map = L.map('map').setView([14.8327253, 120.2796366], 17); 
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -388,8 +388,8 @@
 
         // Coordinates for common locations (must match locations used in all files)
         const locations = {
-            'main': { name: 'Gordon College Main Campus', coords: [14.8324, 120.2833] },
-            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8372648, 120.2798648] }
+            'main': { name: 'Gordon College Main Campus', coords: [14.8327253, 120.2796366] },
+            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8373148, 120.2771703] }
         };
         
         // Global state for request timeout and selected location
@@ -468,11 +468,11 @@
             
             const newRequest = {
                 id: generateUniqueId(),
-                user_lat: null,
-                user_lng: null,
+                user_lat: loc.coords[0], // Store latitude
+                user_lng: loc.coords[1], // Store longitude
                 location: loc.name,
                 description: rideDescription, 
-                fare: fare, // ADDED: Fare is saved here
+                fare: fare,
                 timestamp: new Date().toISOString(),
                 status: 'pending'
             };
