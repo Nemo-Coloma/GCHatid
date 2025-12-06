@@ -468,6 +468,8 @@
             
             const newRequest = {
                 id: generateUniqueId(),
+                user_lat: null,
+                user_lng: null,
                 location: loc.name,
                 description: rideDescription, 
                 fare: fare, // ADDED: Fare is saved here
@@ -480,23 +482,32 @@
             queue.push(newRequest);
             saveRequestsQueue(queue);
             
-            // 3. Show the waiting modal (Simulation)
+            // 3. Show the waiting modal
             document.getElementById('waitingModal').style.display = 'flex';
             document.getElementById('waitingMessage').textContent = `Requesting Ride: ₱${fare}...`;
-            
-            // 4. Simulate a successful rider match after 3 seconds
-            window._requestTimeout = setTimeout(() => {
-                // Change modal message before closing
-                document.getElementById('waitingMessage').textContent = 'Rider Found! Your request has been queued for a driver.';
-                
-                // Close modal after a small pause
-                setTimeout(() => {
-                    closeWaitingModal();
-                    // Show the "Rider is on its way" notification
-                    showRiderFoundNotification();
-                }, 500); 
 
-            }, 3000); // 3 seconds simulation time
+            // 4. Poll for driver acceptance instead of automatic timeout
+            window._currentRequestId = newRequest.id;
+            window._requestTimeout = setInterval(() => {
+                // Check if the driver accepted the request by looking for 'accepted' status
+                const allRequests = getRequestsQueue();
+                const acceptedRequest = allRequests.find(req => req.id === window._currentRequestId && req.status === 'accepted');
+
+                if (acceptedRequest) {
+                    // Driver accepted! Clear the interval and show notification
+                    clearInterval(window._requestTimeout);
+
+                    // Update modal message
+                    document.getElementById('waitingMessage').textContent = 'Driver accepted your request!';
+
+                    // Close modal after a pause
+                    setTimeout(() => {
+                        closeWaitingModal();
+                        // Show the "Rider is on its way" notification
+                        showRiderFoundNotification();
+                    }, 1000);
+                }
+            }, 500); // Check every 500ms for acceptance
         }
 
         function cancelRequest() {
@@ -584,8 +595,3 @@ if (mainBtn && annexBtn) {
     </script>
 </body>
 </html>
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
