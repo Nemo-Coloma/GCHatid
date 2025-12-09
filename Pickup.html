@@ -35,16 +35,15 @@
             padding: 25px 20px; /* Increased top/bottom padding */
             box-sizing: border-box;
             display: flex;
-            flex-direction: column; /* CRITICAL: Allows vertical layout */
+            flex-direction: column;
             justify-content: space-between; 
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); 
-            flex-shrink: 0;
         }
         
-        /* This wrapper makes the content inside scrollable and pushes the request-section down */
+        /* This wrapper makes the content inside scrollable and pushes the request-section down (Original pickup.html structure) */
         .main-content-area {
-            flex-grow: 1; /* Takes remaining space */
-            overflow-y: auto; /* Allow scrolling here */
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .section {
@@ -114,7 +113,7 @@
         .request-section {
             padding-top: 25px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0; /* Ensures it stays put at the bottom */
+            flex-shrink: 0; 
         }
         
         .make-request-btn {
@@ -142,7 +141,6 @@
         .back-button-container {
             text-align: left;
             margin-bottom: 25px;
-            flex-shrink: 0; /* Ensures it stays put at the top */
         }
 
         .back-button {
@@ -157,6 +155,7 @@
             text-decoration: none;
             line-height: 1;
             transition: background-color 0.2s, color 0.2s;
+            flex-shrink: 0;
         }
 
         .back-button:hover {
@@ -320,7 +319,7 @@
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); 
                 overflow-y: hidden; /* Ensure sidebar itself doesn't scroll */
                 flex: none;
-                justify-content: flex-start; 
+                justify-content: flex-start; /* CRITICAL: Pushes main content up */
             }
 
             /* 3. Significantly reduce vertical spacing and compact elements */
@@ -546,8 +545,6 @@
 
             // 4. Poll for driver acceptance instead of automatic timeout
             window._currentRequestId = newRequest.id;
-            // Clear existing interval before starting a new one
-            clearInterval(window._requestTimeout); 
             window._requestTimeout = setInterval(() => {
                 // Check if the driver accepted the request by looking for 'accepted' status
                 const allRequests = getRequestsQueue();
@@ -571,10 +568,11 @@
         }
 
         function cancelRequest() {
-            // Clear existing interval check
+            clearTimeout(window._requestTimeout);
+            // Re-use interval check on cancel
             clearInterval(window._requestTimeout); 
             
-            // Remove the request from the queue
+            // Remove the request from the queue (Added this logic from pahatid.html for consistency in queue management)
             if (window._currentRequestId) {
                 const queue = getRequestsQueue();
                 const filteredQueue = queue.filter(req => req.id !== window._currentRequestId);
