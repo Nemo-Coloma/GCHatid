@@ -30,245 +30,140 @@
 
         .sidebar {
             width: 400px; 
-            background-color: #2c4a69; /* Dark blue background */
+            background-color: #0f2336; /* PAHATID Dark Blue Theme */
             color: white;
-            padding: 25px 20px; /* Increased top/bottom padding */
+            padding: 25px 20px; 
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: space-between; 
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); 
+            flex-shrink: 0;
+        }
+
+        /* NEW: Header Flex container for back button and title */
+        .header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 25px; /* Standard desktop spacing */
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Desktop Separator */
+            padding-bottom: 10px;
+        }
+        
+        .header-flex h3 {
+            text-align: left; 
+            margin: 0;
+            font-size: 1.4em; 
+            font-weight: 600; 
+            color: #fff;
+            flex-grow: 1;
+            padding-left: 20px; /* Space between back button and title */
+            border-bottom: none; /* Removed from H3 for cleaner look */
+            padding-bottom: 0;
+        }
+        
+        /* This wrapper ensures content can grow, but we will remove scrolling on mobile */
+        .main-content-area {
+            flex-grow: 1;
+            overflow-y: visible; /* Default to visible on desktop */
+            padding-bottom: 0; /* Clear previous mobile fix */
         }
 
         .section {
             margin-bottom: 25px;
+            flex-shrink: 0; /* Helps prevent accidental shrinking */
         }
 
         .section h3 {
-            text-align: left; /* iOS headings often align left */
+            text-align: left; 
             margin-top: 0;
-            font-size: 1.4em; /* Slightly larger heading */
-            font-weight: 600; /* Semi-bold */
+            font-size: 1.4em; 
+            font-weight: 600; 
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
         }
-
+        
         /* Location Buttons (Tappable Cells) */
         .pick-up-location .location-item {
             text-align: left;
-            background-color: rgba(255, 255, 255, 0.08); /* Lighter background for cells */
-            padding: 15px; /* Increased padding */
-            margin-bottom: 8px; /* Slightly smaller margin */
-            border-radius: 10px; /* Rounded corners */
+            background-color: rgba(255, 255, 255, 0.08); 
+            padding: 15px; 
+            margin-bottom: 8px; 
+            border-radius: 10px; 
             cursor: pointer;
             transition: background-color 0.2s ease, box-shadow 0.2s ease;
             font-weight: 500;
         }
 
-        .pick-up-location .location-item:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Active/Clicked State for Location Buttons */
         .pick-up-location .location-item.active {
             background-color: #1f568a; 
-            border: 2px solid #15c8ff; /* Light blue accent border */
-            box-shadow: 0 0 10px rgba(21, 200, 255, 0.5); /* Glowing effect */
+            border: 2px solid #15c8ff; 
+            box-shadow: 0 0 10px rgba(21, 200, 255, 0.5); 
             font-weight: 600;
         }
 
-        /* --- Description Box Styling (NEW) --- */
+        /* --- Description Box Styling --- */
         .description-box h3 {
              margin-bottom: 15px; 
         }
 
         #rideDescription {
             width: 100%;
-            min-height: 80px; /* Small size */
-            max-height: 120px; /* Prevent it from getting too large */
+            min-height: 80px; 
+            max-height: 120px; 
             padding: 15px;
             box-sizing: border-box;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px; /* Match location items */
-            background-color: rgba(255, 255, 255, 0.08); /* Match location items */
+            border-radius: 10px; 
+            background-color: rgba(255, 255, 255, 0.08); 
             color: white;
             font-size: 1em;
-            resize: vertical; /* Allow vertical resize only */
-            font-family: inherit; /* Use the iOS font family */
+            resize: vertical; 
+            font-family: inherit; 
+            flex-shrink: 0;
         }
-
-        #rideDescription::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 300;
-        }
-        /* --- END Description Box Styling --- */
-
 
         /* --- Request Button Styling (Primary Action) --- */
         .request-section {
             padding-top: 25px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0; 
         }
         
         .make-request-btn {
             width: 100%;
-            padding: 18px; /* Large tap area */
+            padding: 18px; 
             background-color: #26c166; 
-            background-image: linear-gradient(to top, #26c166, #36d476); /* Subtle gradient for depth */
+            background-image: linear-gradient(to top, #26c166, #36d476); 
             color: white;
             font-size: 1.2em;
             font-weight: bold;
             border: none;
-            border-radius: 12px; /* iOS-like corner radius */
+            border-radius: 12px; 
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(38, 193, 102, 0.4); /* Green shadow */
+            box-shadow: 0 4px 10px rgba(38, 193, 102, 0.4); 
         }
 
-        .make-request-btn:hover {
-            background-color: #1e9d56;
-            background-image: linear-gradient(to top, #1e9d56, #2acb66);
-            box-shadow: 0 2px 8px rgba(38, 193, 102, 0.6);
-        }
-        
-        /* --- Back Button ICON Styling --- */
-        .back-button-container {
-            text-align: left;
-            margin-bottom: 25px;
-        }
-
+        /* --- Back Button ICON Styling (Modified for placement) --- */
         .back-button {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.1); /* Subtle background */
+            background: rgba(255, 255, 255, 0.1); 
             border: none;
             color: white;
-            font-size: 1.5em;
-            padding: 8px 15px; /* Adjust padding for better look */
+            font-size: 1.2em; 
+            padding: 6px 12px; 
             border-radius: 50%;
             cursor: pointer;
             text-decoration: none;
             line-height: 1;
             transition: background-color 0.2s, color 0.2s;
-        }
-
-        .back-button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #15c8ff;
-        }
-
-        /* --- Waiting Modal Styling (Pop-up Icon) --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            /* iOS blurred effect (requires backdrop-filter) */
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: rgba(44, 74, 105, 0.95); /* Semi-transparent background */
-            padding: 40px 50px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            text-align: center;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
-        }
-
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #15c8ff; /* Accent color */
-            border-radius: 50%;
-            width: 50px; /* Slightly larger spinner */
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 25px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .modal-content h3 {
-             font-size: 1.3em;
-             margin-bottom: 10px;
-        }
-
-        .modal-content p {
-            font-size: 1.1em;
-            font-weight: 500;
-        }
-
-        .cancel-btn-style { /* Class for the button inside the modal */
-            padding: 12px 25px;
-            background-color: #dc3545; /* Red */
-            background-image: linear-gradient(to top, #dc3545, #e05e69);
-            color: white; 
-            font-weight: 600;
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer;
-            transition: background-color 0.2s;
-            box-shadow: 0 2px 5px rgba(220, 53, 69, 0.4);
-            margin-top: 25px;
-        }
-
-        .cancel-btn-style:hover {
-            background-color: #c82333;
+            flex-shrink: 0;
         }
         
-        /* --- Rider Found Notification Card --- */
-        #riderFoundNotification {
-            position: absolute;
-            bottom: 20px;
-            left: 50%; /* Center in the sidebar */
-            transform: translate(-50%, 120px); /* Move off-screen below */
-            width: 90%;
-            max-width: 360px;
-            background-color: #26c166; /* Green */
-            background-image: linear-gradient(to right, #26c166, #36d476);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease-out; /* Bouncy animation */
-            z-index: 999;
-        }
-        
-        #riderFoundNotification.visible {
-            transform: translate(-50%, 0); /* Slide up to final position */
-            opacity: 1;
-        }
-
-        /* --- Custom Alert/Message Box --- */
-        #customAlert {
-            display: none;
-            position: fixed;
-            top: 10%; /* Move up slightly */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #dc3545; /* Use a standard alert red */
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            z-index: 1001;
-            text-align: center;
-            font-weight: 500;
-            transition: opacity 0.3s;
-        }
-
         /* --- Fare Display --- */
         .fare-display {
             background-color: rgba(255, 255, 255, 0.1);
@@ -276,49 +171,99 @@
             border-radius: 8px;
             text-align: center;
             margin-top: 15px;
+            flex-shrink: 0;
         }
-        .fare-display h3 {
-            font-size: 1.1em;
-            margin: 0;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .fare-display p {
-            font-size: 2em;
-            font-weight: bold;
-            color: #15c8ff;
-            margin: 5px 0 0;
-        }
+
+
+        /* Mobile Responsiveness Adjustments (CRITICAL FIXES for NO SCROLL) */
         @media (max-width: 768px) {
-  /* 1. Stack the map and sidebar vertically */
-  .container {
-    flex-direction: column; 
-    height: 100%; /* Ensure container still uses full height */
-  }
+            
+            body { overflow-y: hidden; height: 100vh; }
+            .container { flex-direction: column; height: 100%; }
 
-  /* 2. Map takes the top half of the screen */
-  #map {
-    height: 50vh; 
-    flex: none; /* Stop flex-grow from fighting with sidebar */
-  }
+            /* 1. Map takes 40% of the screen */
+            #map { height: 40vh; flex: none; }
 
-  /* 3. Sidebar takes the bottom half and becomes scrollable */
-  .sidebar {
-    width: 100%; /* Full screen width */
-    height: 50vh; /* Sidebar takes the bottom half of the screen */
-    padding: 20px 15px;
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); /* Shadow on top edge */
-    overflow-y: auto; /* Enable vertical scrolling within the sidebar */
-    flex: none;
-  }
+            /* 2. Sidebar takes the remaining 60% and is NOT scrollable */
+            .sidebar {
+                width: 100%; 
+                height: 60vh; 
+                padding: 15px 15px 10px 15px; /* Reduced padding */
+                overflow-y: hidden; /* **CRITICAL: No scroll on sidebar** */
+                flex: none;
+            }
+            
+            /* **CRITICAL: Main content area must not scroll** */
+            .main-content-area {
+                flex-grow: 1; 
+                overflow-y: hidden; /* **CRITICAL: No scroll on content area** */
+            }
 
-  /* 4. Adjust button size for easier tapping */
-  .make-request-btn {
-    padding: 16px;
-    font-size: 1.1em;
-  }
-}
+            /* Back button placement and header title sizing */
+            .header-flex {
+                 margin-bottom: 8px; /* Reduced vertical margin */
+                 border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+                 padding-bottom: 5px;
+            }
+            
+            .header-flex h3 {
+                padding-left: 10px; 
+                font-size: 1.2em; 
+            }
+            
+            /* Compact Section Spacing */
+            .section {
+                margin-bottom: 5px; 
+            }
 
+            .section h3 {
+                font-size: 1.1em;
+                padding-bottom: 5px;
+            }
+
+            .pick-up-location .location-item {
+                padding: 10px; 
+                margin-bottom: 4px; 
+                font-size: 0.9em; 
+            }
+            
+            /* Compact Description Box */
+            .description-box h3 {
+                border-bottom: none; /* Remove redundant border */
+                margin-bottom: 5px;
+            }
+            
+            #rideDescription {
+                min-height: 35px; /* Aggressively reduced height */
+                max-height: 35px; 
+                padding: 5px; 
+                font-size: 0.9em;
+            }
+            
+            /* Compact Fare Display */
+            .fare-display {
+                margin-top: 5px; 
+                padding: 8px; 
+            }
+            
+            .fare-display h3 {
+                 font-size: 0.9em;
+            }
+            
+            .fare-display p {
+                font-size: 1.5em; 
+            }
+
+            /* Button spacing */
+            .request-section {
+                padding-top: 5px; 
+            }
+            
+            .make-request-btn {
+                padding: 10px; 
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -326,19 +271,21 @@
         <div id="map"></div>
         
         <div class="sidebar">
-            <div class="back-button-container">
-                <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
+            
+            <div class="header-flex">
+                 <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
+                 <h3>Pick-up Location</h3>
             </div>
             
-            <div>
+            <div class="main-content-area">
+                
                 <div class="section pick-up-location">
-                    <h3>Pick-up Location</h3>
                     <div class="location-item" id="mainCampusBtn" onclick="toggleLocation(this, 'main')">Gordon College Main Campus</div>
                     <div class="location-item" id="annexCampusBtn" onclick="toggleLocation(this, 'annex')">Gordon College ANNEX Campus</div>
                 </div>
 
                 <div class="section description-box">
-                    <h3>Description (Optional)</h3>
+                    <h3 style="border-bottom: 1px solid rgba(255, 255, 255, 0.15);">Description (Optional)</h3>
                     <textarea id="rideDescription" placeholder="e.g., I have a black bag and long hair" rows="3"></textarea>
                 </div>
                 
@@ -348,7 +295,6 @@
                 </div>
 
             </div>
-
             <div class="request-section">
                 
                 <button class="make-request-btn" onclick="handleMakeRequest()">Make Request</button>
@@ -378,7 +324,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         // Leaflet Map Initialization (kept simple)
-        var map = L.map('map').setView([14.8314775, 120.2819695], 16); 
+        var map = L.map('map').setView([14.8327253, 120.2796366], 17); 
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -388,8 +334,8 @@
 
         // Coordinates for common locations (must match locations used in all files)
         const locations = {
-            'main': { name: 'Gordon College Main Campus', coords: [14.8324, 120.2833] },
-            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8372648, 120.2798648] }
+            'main': { name: 'Gordon College Main Campus', coords: [14.8327253, 120.2796366] },
+            'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8373148, 120.2771703] }
         };
         
         // Global state for request timeout and selected location
@@ -468,11 +414,11 @@
             
             const newRequest = {
                 id: generateUniqueId(),
-                user_lat: null,
-                user_lng: null,
+                user_lat: loc.coords[0], // Store latitude
+                user_lng: loc.coords[1], // Store longitude
                 location: loc.name,
                 description: rideDescription, 
-                fare: fare, // ADDED: Fare is saved here
+                fare: fare,
                 timestamp: new Date().toISOString(),
                 status: 'pending'
             };
@@ -488,6 +434,7 @@
 
             // 4. Poll for driver acceptance instead of automatic timeout
             window._currentRequestId = newRequest.id;
+            clearInterval(window._requestTimeout); 
             window._requestTimeout = setInterval(() => {
                 // Check if the driver accepted the request by looking for 'accepted' status
                 const allRequests = getRequestsQueue();
@@ -512,8 +459,17 @@
 
         function cancelRequest() {
             clearTimeout(window._requestTimeout);
+             clearInterval(window._requestTimeout);
+            
+            // Remove the request from the queue
+            if (window._currentRequestId) {
+                const queue = getRequestsQueue();
+                const filteredQueue = queue.filter(req => req.id !== window._currentRequestId);
+                saveRequestsQueue(filteredQueue);
+                window._currentRequestId = null;
+            }
+            
             closeWaitingModal();
-            // In a real app, you'd need to send a cancel request to the server.
             showAlert('Request cancelled.');
         }
 
@@ -546,50 +502,7 @@
             }, 3000);
         }
 
-        // Campus routing logic
-        function showCampusRoute(fromKey) {
-    // fromKey: 'main' or 'annex'
-    // Route should go to the other campus
-    var toKey = fromKey === 'main' ? 'annex' : 'main';
-    var fromLoc = locations[fromKey].coords;
-    var toLoc = locations[toKey].coords;
-    if (window._campusRouteControl) {
-        map.removeControl(window._campusRouteControl);
-    }
-    window._campusRouteControl = L.Routing.control({
-        waypoints: [L.latLng(fromLoc[0], fromLoc[1]), L.latLng(toLoc[0], toLoc[1])],
-        routeWhileDragging: false,
-        draggableWaypoints: false,
-        addWaypoints: false,
-        show: false,
-        lineOptions: {
-            styles: [{color: '#1671B7', weight: 6, opacity: 0.85}]
-        },
-        createMarker: function(i, wp, nWps) {
-            if (i === 0) {
-                return L.marker(wp.latLng).bindPopup(locations[fromKey].name);
-            } else {
-                return L.marker(wp.latLng).bindPopup(locations[toKey].name);
-            }
-        }
-    }).addTo(map);
-}
-
-// Attach to campus buttons
-const mainBtn = document.getElementById('mainCampusBtn');
-const annexBtn = document.getElementById('annexCampusBtn');
-if (mainBtn && annexBtn) {
-    mainBtn.onclick = function() {
-        toggleLocation(this, 'main');
-        showCampusRoute('main');
-    };
-    annexBtn.onclick = function() {
-        toggleLocation(this, 'annex');
-        showCampusRoute('annex');
-    };
-}
-
-// Initialize by selecting the first location and setting fare
+        // Initialize by selecting the first location and setting fare
         document.getElementById('mainCampusBtn').click();
         updateFareDisplay();
     </script>
