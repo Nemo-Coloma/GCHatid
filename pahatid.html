@@ -30,7 +30,7 @@
 
         .sidebar {
             width: 400px; 
-            background-color: #0f2336; /* Dark blue background */
+            background-color: #2c4a69; /* Dark blue background */
             color: white;
             padding: 25px 20px; /* Increased top/bottom padding */
             box-sizing: border-box;
@@ -44,26 +44,6 @@
             margin-bottom: 25px;
         }
 
-        /* --- Header Alignment --- */
-        .sidebar-header-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px; /* Space before campus buttons */
-        }
-        
-        .sidebar-header-row .section {
-            margin-bottom: 0; /* Remove section margin when in header row */
-            flex-grow: 1;
-        }
-        
-        .sidebar-header-row .section h3 {
-            padding-bottom: 0;
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        /* --- END Header Alignment --- */
-
-
         .section h3 {
             text-align: left; /* iOS headings often align left */
             margin-top: 0;
@@ -74,30 +54,55 @@
             color: #fff;
         }
 
-        /* --- Description Box Styling --- */
+        /* Location Buttons (Tappable Cells) */
+        .pick-up-location .location-item {
+            text-align: left;
+            background-color: rgba(255, 255, 255, 0.08); /* Lighter background for cells */
+            padding: 15px; /* Increased padding */
+            margin-bottom: 8px; /* Slightly smaller margin */
+            border-radius: 10px; /* Rounded corners */
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 500;
+        }
+
+        .pick-up-location .location-item:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Active/Clicked State for Location Buttons */
+        .pick-up-location .location-item.active {
+            background-color: #1f568a; 
+            border: 2px solid #15c8ff; /* Light blue accent border */
+            box-shadow: 0 0 10px rgba(21, 200, 255, 0.5); /* Glowing effect */
+            font-weight: 600;
+        }
+
+        /* --- Description Box Styling (NEW) --- */
         .description-box h3 {
              margin-bottom: 15px; 
         }
 
         #rideDescription {
             width: 100%;
-            min-height: 80px; 
-            max-height: 120px; 
+            min-height: 80px; /* Small size */
+            max-height: 120px; /* Prevent it from getting too large */
             padding: 15px;
             box-sizing: border-box;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px; 
-            background-color: rgba(255, 255, 255, 0.08); 
+            border-radius: 10px; /* Match location items */
+            background-color: rgba(255, 255, 255, 0.08); /* Match location items */
             color: white;
             font-size: 1em;
-            resize: vertical; 
-            font-family: inherit; 
+            resize: vertical; /* Allow vertical resize only */
+            font-family: inherit; /* Use the iOS font family */
         }
 
         #rideDescription::placeholder {
             color: rgba(255, 255, 255, 0.4);
             font-weight: 300;
         }
+        /* --- END Description Box Styling --- */
 
 
         /* --- Request Button Styling (Primary Action) --- */
@@ -110,15 +115,15 @@
             width: 100%;
             padding: 18px; /* Large tap area */
             background-color: #26c166; 
-            background-image: linear-gradient(to top, #26c166, #36d476); 
+            background-image: linear-gradient(to top, #26c166, #36d476); /* Subtle gradient for depth */
             color: white;
             font-size: 1.2em;
             font-weight: bold;
             border: none;
-            border-radius: 12px; 
+            border-radius: 12px; /* iOS-like corner radius */
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(38, 193, 102, 0.4); 
+            box-shadow: 0 4px 10px rgba(38, 193, 102, 0.4); /* Green shadow */
         }
 
         .make-request-btn:hover {
@@ -127,26 +132,24 @@
             box-shadow: 0 2px 8px rgba(38, 193, 102, 0.6);
         }
         
-        /* --- Back Button ICON Styling (Modified) --- */
+        /* --- Back Button ICON Styling --- */
         .back-button-container {
-            margin-bottom: 0; 
             text-align: left;
+            margin-bottom: 25px;
         }
 
         .back-button {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.1); 
+            background: rgba(255, 255, 255, 0.1); /* Subtle background */
             border: none;
             color: white;
-            font-size: 1.2em; 
-            padding: 6px 12px; 
+            font-size: 1.5em;
+            padding: 8px 15px; /* Adjust padding for better look */
             border-radius: 50%;
             cursor: pointer;
             text-decoration: none;
             line-height: 1;
             transition: background-color 0.2s, color 0.2s;
-            margin-right: 15px; 
-            flex-shrink: 0;
         }
 
         .back-button:hover {
@@ -154,7 +157,7 @@
             color: #15c8ff;
         }
 
-        /* --- Other Modal/Notification styles remain unchanged --- */
+        /* --- Waiting Modal Styling (Pop-up Icon) --- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -166,25 +169,26 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            /* iOS blurred effect (requires backdrop-filter) */
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background-color: rgba(44, 74, 105, 0.95); 
+            background-color: rgba(44, 74, 105, 0.95); /* Semi-transparent background */
             padding: 40px 50px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             text-align: center;
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
         }
 
         .loader {
             border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #15c8ff; 
+            border-top: 4px solid #15c8ff; /* Accent color */
             border-radius: 50%;
-            width: 50px; 
+            width: 50px; /* Slightly larger spinner */
             height: 50px;
             animation: spin 1s linear infinite;
             margin: 0 auto 25px;
@@ -205,9 +209,9 @@
             font-weight: 500;
         }
 
-        .cancel-btn-style { 
+        .cancel-btn-style { /* Class for the button inside the modal */
             padding: 12px 25px;
-            background-color: #dc3545; 
+            background-color: #dc3545; /* Red */
             background-image: linear-gradient(to top, #dc3545, #e05e69);
             color: white; 
             font-weight: 600;
@@ -223,40 +227,42 @@
             background-color: #c82333;
         }
         
+        /* --- Rider Found Notification Card --- */
         #riderFoundNotification {
             position: absolute;
             bottom: 20px;
-            left: 50%; 
-            transform: translate(-50%, 120px); 
+            left: 50%; /* Center in the sidebar */
+            transform: translate(-50%, 120px); /* Move off-screen below */
             width: 90%;
             max-width: 360px;
-            background-color: #26c166; 
+            background-color: #26c166; /* Green */
             background-image: linear-gradient(to right, #26c166, #36d476);
             color: white;
             padding: 15px 20px;
             border-radius: 12px;
-            box-shadow: 6px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
             opacity: 0;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease-out; 
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease-out; /* Bouncy animation */
             z-index: 999;
         }
         
         #riderFoundNotification.visible {
-            transform: translate(-50%, 0); 
+            transform: translate(-50%, 0); /* Slide up to final position */
             opacity: 1;
         }
 
+        /* --- Custom Alert/Message Box --- */
         #customAlert {
             display: none;
             position: fixed;
-            top: 10%; 
+            top: 10%; /* Move up slightly */
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #dc3545; 
+            background-color: #dc3545; /* Use a standard alert red */
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
-            box-shadow: 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             z-index: 1001;
             text-align: center;
             font-weight: 500;
@@ -283,132 +289,107 @@
             color: #15c8ff;
             margin: 5px 0 0;
         }
-        
-        /* --- Campus Buttons --- */
-        .ios-campus-btn {
-            background: rgba(255,255,255,0.08);
-            color: #fff; /* Keep text white on dark background */
-            border: none;
-            border-radius: 14px;
-            padding: 10px 18px;
-            font-size: 15px;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin: 0;
-            cursor: pointer;
-            transition: background .14s, transform .08s, box-shadow .14s;
-        }
-        .ios-campus-btn:hover {
-            background: rgba(22,113,183,0.12);
-            color: #fff; /* Keep text white */
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 18px rgba(22,113,183,0.18);
-        }
-        
-        /* --- Mobile Responsiveness Adjustments (CRITICAL FIXES) --- */
-        @media (max-width: 768px) {
-            /* FIX: Ensure body allows 100% viewport and prevents scrolling */
-            body {
-                overflow-y: hidden; 
-                height: 100vh;
-            }
-            .container {
-                flex-direction: column; 
-                height: 100%; 
-            }
+        /* Mobile Responsiveness Adjustments (PAHATID Style Fix) */
+                @media (max-width: 768px) {
+                    body {
+                        overflow-y: hidden;
+                        height: 100vh;
+                    }
+                    .container {
+                        flex-direction: column;
+                        height: 100%;
+                    }
 
-            /* 1. Map takes 40% of the screen */
-            #map {
-                height: 40vh; 
-                flex: none; 
-            }
+                    /* Map takes 40% of the screen */
+                    #map {
+                        height: 40vh;
+                        flex: none;
+                    }
 
-            /* 2. Sidebar takes the remaining 60% and is NOT scrollable */
-            .sidebar {
-                width: 100%; 
-                height: 60vh; 
-                padding: 15px; 
-                box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2); 
-                overflow-y: hidden; 
-                flex: none;
-                justify-content: flex-start; 
-            }
+                    /* Sidebar takes the remaining 60% and is NOT scrollable itself, but its content area is */
+                    .sidebar {
+                        width: 100%;
+                        height: 60vh;
+                        padding: 15px;
+                        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+                        /* Ensures space-between behavior within the column: */
+                        flex: none;
+                        /* Keep default display: flex; flex-direction: column; */
+                        justify-content: flex-start;
+                    }
 
-            /* 3. Significantly reduce vertical spacing and compact elements */
-            
-            .sidebar-header-row {
-                margin-bottom: 8px; 
-            }
+                    /* CRITICAL FIX: Make content area scrollable and push button to bottom */
+                    .main-content-area {
+                        flex-grow: 1; /* Take all available space, pushing request-section down */
+                        overflow-y: auto; /* Allow scrolling within this area */
+                        padding-bottom: 8px; /* Extra padding for bottom of scrollable area */
+                    }
 
-            /* **Tighter fit for sections** */
-            .section {
-                margin-bottom: 4px; /* Reduced from 8px to 4px */
-            }
+                    /* Tighter fit for sections */
+                    .back-button-container {
+                         margin-bottom: 8px;
+                    }
 
-            .section h3 {
-                padding-bottom: 5px; 
-                margin-bottom: 5px; 
-                font-size: 1.2em; 
-            }
-            
-            .pick-up-location-buttons {
-                margin-bottom: 4px !important; /* Reduced margin below buttons */
-            }
+                    .section {
+                        margin-bottom: 8px;
+                    }
 
-            .ios-campus-btn {
-                padding: 8px 10px; 
-                font-size: 13px;
-            }
-            
-            #rideDescription {
-                min-height: 40px; 
-                max-height: 60px; 
-                padding: 8px; 
-            }
-            
-            .fare-display {
-                margin-top: 5px; 
-                padding: 4px; /* Reduced padding */
-            }
-            
-            .fare-display p {
-                font-size: 1.8em; 
-            }
+                    .section h3 {
+                        padding-bottom: 5px;
+                        margin-bottom: 5px;
+                        font-size: 1.2em;
+                    }
 
-            /* **CRITICAL: Bring Make Request button closer** */
-            .request-section {
-                padding-top: 5px; /* Reduced from 10px to 5px */
-                margin-top: auto; 
-            }
-            
-            .make-request-btn {
-                padding: 12px; 
-                font-size: 1em;
-            }
-        }
+                    .pick-up-location .location-item {
+                        padding: 12px;
+                        margin-bottom: 5px;
+                        font-size: 0.9em;
+                    }
+
+                    #rideDescription {
+                        min-height: 40px;
+                        max-height: 60px;
+                        padding: 8px;
+                    }
+
+                    .fare-display {
+                        margin-top: 5px;
+                        padding: 8px;
+                    }
+
+                    .fare-display p {
+                        font-size: 1.8em;
+                    }
+
+                    /* Keep Make Request button fixed at the bottom of the sidebar */
+                    .request-section {
+                        padding-top: 5px;
+                        border-top: 1px solid rgba(255, 255, 255, 0.1);
+                        flex-shrink: 0; /* Prevent shrinking */
+                    }
+
+                    .make-request-btn {
+                        padding: 12px;
+                        font-size: 1em;
+                    }
+                }
 
     </style>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 </head>
 <body>
     <div class="container">
         <div id="map"></div>
         
         <div class="sidebar">
-            
-            <div class="sidebar-header-row">
-                <div class="back-button-container">
-                    <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
-                </div>
-                <div class="section pick-up-location" style="margin-bottom: 0;"> 
-                    <h3>Pick-up Location</h3>
-                </div>
+            <div class="back-button-container">
+                <a href="options.html" class="back-button" aria-label="Back to Options">←</a>
             </div>
             
-            <div>
-                <div class="pick-up-location-buttons" style="display:flex; gap:12px; justify-content:center; margin-bottom:10px;">
-                    <button class="ios-campus-btn" onclick="showRouteToCampus('main'); return false;">Gordon College Main Campus</button>
-                    <button class="ios-campus-btn" onclick="showRouteToCampus('annex'); return false;">Gordon College Annex Campus</button>
+            <div class="main-content-area">
+                <div class="section pick-up-location">
+                    <h3>Pick-up Location</h3>
+                    <div class="location-item" id="mainCampusBtn" onclick="toggleLocation(this, 'main')">Gordon College Main Campus</div>
+                    <div class="location-item" id="annexCampusBtn" onclick="toggleLocation(this, 'annex')">Gordon College ANNEX Campus</div>
                 </div>
 
                 <div class="section description-box">
@@ -423,9 +404,10 @@
 
             </div>
 
-                <div class="request-section" style="margin-top: 8px; padding-top: 0;">
-                    <button class="make-request-btn" onclick="handleMakeRequest()">Make Request</button>
-                </div>
+            <div class="request-section">
+                
+                <button class="make-request-btn" onclick="handleMakeRequest()">Make Request</button>
+            </div>
         </div>
     </div>
 
@@ -449,13 +431,9 @@
 
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script>
         // Leaflet Map Initialization (kept simple)
         var map = L.map('map').setView([14.8327253, 120.2796366], 17); 
-
-            // Routing control instance
-            var routingControl = null;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -468,106 +446,54 @@
             'main': { name: 'Gordon College Main Campus', coords: [14.8327253, 120.2796366] },
             'annex': { name: 'Gordon College ANNEX Campus', coords: [14.8373148, 120.2771703] }
         };
-
-            // Store user's pinned location
-            window._userPinnedLocation = null;
-            window._userPinnedMarker = null; // Marker for the pinned location
         
         // Global state for request timeout and selected location
         window._requestTimeout = null;
-        window._pickupMarker = null; 
-        window._selectedLocationKey = null; // The selected campus destination
+        window._pickupMarker = null;
+        window._selectedLocationKey = 'main'; // Default to main
 
         // Function to calculate fare (Minimum 50.00 Pesos)
-        function calculateFare(distanceInMeters) {
-            // Placeholder: Assume a base fare + a simple rate per kilometer
+        function calculateFare(locationKey) {
+            // Placeholder: Since we only have two fixed locations, we'll use a simple fixed rate.
+            // In a real app, you would use a distance/time matrix API.
+            
             const BASE_FARE = 50.00;
-            const RATE_PER_KM = 10.00;
+            let distance_rate = 0;
+
+            if (locationKey === 'main') {
+                distance_rate = 0; // Assuming a minimal trip distance from main
+            } else if (locationKey === 'annex') {
+                // If the user selects the Annex, charge a slightly higher flat rate 
+                // to simulate a slightly longer travel distance/time.
+                distance_rate = 5; 
+            }
             
-            if (distanceInMeters === 0 || isNaN(distanceInMeters)) return BASE_FARE.toFixed(2);
-            
-            const distanceInKm = distanceInMeters / 1000;
-            const fare = BASE_FARE + (distanceInKm * RATE_PER_KM);
+            const fare = BASE_FARE + distance_rate;
             return fare.toFixed(2);
         }
         
-        function updateFareDisplay(distanceInMeters) {
-            const fare = calculateFare(distanceInMeters);
+        function updateFareDisplay() {
+            const fare = calculateFare(window._selectedLocationKey);
             document.getElementById('estimatedFare').textContent = `₱${fare}`;
         }
         
-        // Listen for map clicks to pin user location (The source/pickup)
-        map.on('click', function(e) {
-            if (window._userPinnedMarker) {
-                map.removeLayer(window._userPinnedMarker);
-            }
-            window._userPinnedLocation = e.latlng;
-            window._userPinnedMarker = L.marker(e.latlng, {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [32,32], iconAnchor: [16,32]})}).addTo(map).bindPopup('Your pinned pickup location').openPopup();
-            
-            // Clear route and reset fare if a location was previously selected
-            if (routingControl) {
-                map.removeControl(routingControl);
-                routingControl = null;
-            }
-            window._selectedLocationKey = null; // Clear campus destination
-            updateFareDisplay(0);
-            showAlert('Pickup location pinned. Now choose a campus destination.');
-        });
+        function toggleLocation(element, key) {
+            const items = document.querySelectorAll('.location-item');
+            items.forEach(item => item.classList.remove('active')); 
+            element.classList.add('active'); 
 
-        // Show route to selected campus (The destination)
-        function showRouteToCampus(campusKey) {
-            if (!window._userPinnedLocation) {
-                showAlert('Please pin your pickup location on the map first.');
-                return;
-            }
+            window._selectedLocationKey = key;
+            const loc = locations[key];
             
-            const campus = locations[campusKey];
-            if (!campus) return;
-
-            // Remove previous route if any
-            if (routingControl) {
-                map.removeControl(routingControl);
-            }
-            
-            window._selectedLocationKey = campusKey; // Set campus destination
-
-            const startPoint = L.latLng(window._userPinnedLocation.lat, window._userPinnedLocation.lng);
-            const endPoint = L.latLng(campus.coords[0], campus.coords[1]);
-            
-            // Set up the routing control
-            routingControl = L.Routing.control({
-                waypoints: [
-                    startPoint,
-                    endPoint
-                ],
-                routeWhileDragging: false,
-                draggableWaypoints: false,
-                addWaypoints: false,
-                show: false, // Do not show the default route summary
-                lineOptions: {
-                    styles: [{color: '#1671B7', weight: 6, opacity: 0.85}]
-                },
-                createMarker: function(i, wp, nWps) {
-                    if (i === 0) {
-                        // Use the existing pinned marker for the start point, or create one if somehow missing
-                        return window._userPinnedMarker || L.marker(wp.latLng, {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [32,32], iconAnchor: [16,32]})}).bindPopup('Your Pinned Location');
-                    } else {
-                        // Marker for the destination campus
-                        return L.marker(wp.latLng).bindPopup(campus.name);
-                    }
+            if (loc) {
+                map.flyTo(loc.coords, 18, { animate: true, duration: 1.5 }); 
+                if (window._pickupMarker) {
+                    window._pickupMarker.setLatLng(loc.coords).setPopupContent(loc.name).openPopup();
+                } else {
+                    window._pickupMarker = L.marker(loc.coords).addTo(map).bindPopup(loc.name).openPopup();
                 }
-            }).addTo(map);
-
-            // Calculate and display fare based on route distance
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                if (routes.length > 0) {
-                    const distance = routes[0].summary.totalDistance; // distance in meters
-                    updateFareDisplay(distance);
-                }
-            });
-            
-            showAlert(`Route calculated to ${campus.name}.`);
+            }
+            updateFareDisplay(); // Update fare when location changes
         }
         
         function getRequestsQueue() {
@@ -585,29 +511,23 @@
         }
 
         function handleMakeRequest() {
-            if (!window._userPinnedLocation) {
-                showAlert('Please pin your pick-up location on the map first.'); 
-                return;
-            }
-            
             if (!window._selectedLocationKey) {
-                showAlert('Please choose a campus destination.'); 
+                showAlert('Please select a pick-up location first.'); 
                 return;
             }
-            
-            const fareText = document.getElementById('estimatedFare').textContent;
-            
+
             // 1. Get Request Details
             const loc = locations[window._selectedLocationKey];
+            const fare = calculateFare(window._selectedLocationKey);
             const rideDescription = document.getElementById('rideDescription').value.trim();
             
             const newRequest = {
                 id: generateUniqueId(),
-                user_lat: window._userPinnedLocation.lat,
-                user_lng: window._userPinnedLocation.lng,
+                user_lat: loc.coords[0], // Store latitude
+                user_lng: loc.coords[1], // Store longitude
                 location: loc.name,
                 description: rideDescription, 
-                fare: fareText, 
+                fare: fare,
                 timestamp: new Date().toISOString(),
                 status: 'pending'
             };
@@ -619,22 +539,22 @@
             
             // 3. Show the waiting modal
             document.getElementById('waitingModal').style.display = 'flex';
-            document.getElementById('waitingMessage').textContent = `Requesting Ride: ${fareText}...`;
-            
+            document.getElementById('waitingMessage').textContent = `Requesting Ride: ₱${fare}...`;
+
             // 4. Poll for driver acceptance instead of automatic timeout
             window._currentRequestId = newRequest.id;
             window._requestTimeout = setInterval(() => {
                 // Check if the driver accepted the request by looking for 'accepted' status
                 const allRequests = getRequestsQueue();
                 const acceptedRequest = allRequests.find(req => req.id === window._currentRequestId && req.status === 'accepted');
-                
+
                 if (acceptedRequest) {
                     // Driver accepted! Clear the interval and show notification
                     clearInterval(window._requestTimeout);
-                    
+
                     // Update modal message
                     document.getElementById('waitingMessage').textContent = 'Driver accepted your request!';
-                    
+
                     // Close modal after a pause
                     setTimeout(() => {
                         closeWaitingModal();
@@ -646,19 +566,9 @@
         }
 
         function cancelRequest() {
-            // Clear both timeout and interval in case either is running
             clearTimeout(window._requestTimeout);
-            clearInterval(window._requestTimeout);
-            
-            // Remove the request from the queue
-            if (window._currentRequestId) {
-                const queue = getRequestsQueue();
-                const filteredQueue = queue.filter(req => req.id !== window._currentRequestId);
-                saveRequestsQueue(filteredQueue);
-                window._currentRequestId = null;
-            }
-            
             closeWaitingModal();
+            // In a real app, you'd need to send a cancel request to the server.
             showAlert('Request cancelled.');
         }
 
@@ -690,9 +600,53 @@
                 alertBox.style.display = 'none';
             }, 3000);
         }
-        
-        // Initialize fare display
-        updateFareDisplay(0);
+
+        // Campus routing logic
+        function showCampusRoute(fromKey) {
+    // fromKey: 'main' or 'annex'
+    // Route should go to the other campus
+    var toKey = fromKey === 'main' ? 'annex' : 'main';
+    var fromLoc = locations[fromKey].coords;
+    var toLoc = locations[toKey].coords;
+    if (window._campusRouteControl) {
+        map.removeControl(window._campusRouteControl);
+    }
+    window._campusRouteControl = L.Routing.control({
+        waypoints: [L.latLng(fromLoc[0], fromLoc[1]), L.latLng(toLoc[0], toLoc[1])],
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+            styles: [{color: '#1671B7', weight: 6, opacity: 0.85}]
+        },
+        createMarker: function(i, wp, nWps) {
+            if (i === 0) {
+                return L.marker(wp.latLng).bindPopup(locations[fromKey].name);
+            } else {
+                return L.marker(wp.latLng).bindPopup(locations[toKey].name);
+            }
+        }
+    }).addTo(map);
+}
+
+// Attach to campus buttons
+const mainBtn = document.getElementById('mainCampusBtn');
+const annexBtn = document.getElementById('annexCampusBtn');
+if (mainBtn && annexBtn) {
+    mainBtn.onclick = function() {
+        toggleLocation(this, 'main');
+        showCampusRoute('main');
+    };
+    annexBtn.onclick = function() {
+        toggleLocation(this, 'annex');
+        showCampusRoute('annex');
+    };
+}
+
+// Initialize by selecting the first location and setting fare
+        document.getElementById('mainCampusBtn').click();
+        updateFareDisplay();
     </script>
 </body>
 </html>
