@@ -299,7 +299,7 @@
     
     <script>
         // Leaflet Map Initialization
-        const map = L.map('map').setView([14.8327253, 120.2796366], 17); 
+        const map = L.map('map').setView([14.8314775, 120.2819695], 16); 
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -309,8 +309,8 @@
         let routingControl = null;
 
         const locations = {
-            'Gordon College Main Campus': [14.8327253, 120.2796366],
-            'Gordon College ANNEX Campus': [14.8373148, 120.2771703]
+            'Gordon College Main Campus': [14.8324, 120.2833],
+            'Gordon College ANNEX Campus': [14.8372648, 120.2798648]
         };
         
         // Coordinates for a common driver starting point
@@ -650,69 +650,6 @@
             setTimeout(renderDashboard, 500); 
         }
 
-        const requestsList = document.getElementById('requestsList');
-
-        function getRequestsQueue() {
-            const queue = localStorage.getItem('all_requests_queue');
-            return queue ? JSON.parse(queue) : [];
-        }
-
-        function saveRequestsQueue(queue) {
-            localStorage.setItem('all_requests_queue', JSON.stringify(queue));
-        }
-
-        function renderRequests() {
-            const requests = getRequestsQueue();
-            requestsList.innerHTML = ''; // Clear the list first
-
-            if (requests.length === 0) {
-                requestsList.innerHTML = '<div class="request-item"><p>No pending requests.</p></div>';
-                return;
-            }
-
-            requests.forEach(request => {
-                if (request.status === 'pending') { // Only show pending requests
-                    const item = document.createElement('div');
-                    item.className = 'request-item';
-                    item.innerHTML = `
-                        <h4>Request ID: ${request.id}</h4>
-                        <p><strong>From:</strong> ${request.location}</p>
-                        <p><strong>Fare:</strong> ₱${request.fare}</p>
-                        <p><strong>Description:</strong> ${request.description || 'None'}</p>
-                        <p><strong>Time:</strong> ${new Date(request.timestamp).toLocaleTimeString()}</p>
-                        <button onclick="acceptRequest('${request.id}')">Accept Ride</button>
-                    `;
-                    requestsList.appendChild(item);
-                }
-            });
-        }
-
-        function acceptRequest(requestId) {
-            let requests = getRequestsQueue();
-            const requestIndex = requests.findIndex(req => req.id === requestId);
-
-            if (requestIndex !== -1) {
-                // Update the status of the request to 'accepted'
-                requests[requestIndex].status = 'accepted';
-                saveRequestsQueue(requests); // Save the updated queue back to localStorage
-                
-                // Re-render the list to remove the accepted request
-                renderRequests();
-                
-                // The pickup.html page will now see the 'accepted' status and notify the user.
-                alert('Ride accepted! The user has been notified.');
-            }
-        }
-
-        // Listen for changes in localStorage from other pages
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'all_requests_queue') {
-                renderRequests();
-            }
-        });
-
-        // Initial render when the page loads
-        document.addEventListener('DOMContentLoaded', renderRequests);
     </script>
 </body>
 </html>
