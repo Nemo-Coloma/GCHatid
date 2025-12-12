@@ -483,11 +483,12 @@
     // Use an IIFE (Immediately Invoked Function Expression) to manage scope
     (function() {
         // --- 1. DOM REFERENCES & LOCAL DATA ---
+        // Variables needed globally within the IIFE
         const driversTableBody = document.getElementById('driversTableBody');
         const addModal = document.getElementById('addDriverModal');
-        const applyDriverBtn = document.getElementById('applyDriverBtn');
-        let drivers = []; // This will hold the data fetched from Firestore
-
+        const applyDriverBtn = document.getElementById('applyDriverBtn'); // Defined here for DOMContentLoaded access
+        let drivers = []; 
+        
         // --- 2. FIREBASE CONFIGURATION & INITIALIZATION ---
 
         // !!! IMPORTANT !!!
@@ -506,6 +507,8 @@
         let db;
         let driversCollection;
 
+        // Immediately initialize Firebase so 'db' and 'driversCollection' are ready 
+        // before the DOMContentLoaded event triggers data fetching/writing.
         try {
             const app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
@@ -514,17 +517,15 @@
         } catch (error) {
             console.error("Firebase initialization failed:", error);
             window.showConfirmBox("Error initializing Firebase. Check your configuration and network.", null, 'OK');
+            return; // Stop execution if Firebase fails to initialize
         }
 
         // --- 3. FIREBASE CRUD OPERATIONS (Cloud Firestore) ---
 
         /**
          * Fetches all driver data from the 'drivers' collection in Firestore.
-         * Replaces the old local storage fetch.
          */
         async function fetchDrivers() {
-            if (!driversCollection) return;
-
             window.showConfirmBox('Fetching drivers from Firebase...', null, 'Okay');
             try {
                 const snapshot = await driversCollection.get();
@@ -533,12 +534,10 @@
                     ...doc.data()
                 }));
                 
-                // Sort drivers by name before rendering (optional)
                 drivers.sort((a, b) => a.name.localeCompare(b.name));
 
                 renderDrivers();
 
-                // Remove the 'Fetching drivers...' notification
                 setTimeout(() => {
                     const overlay = document.getElementById('customOverlay');
                     if (overlay && overlay.style.display === 'flex' && overlay.querySelector('p').textContent.includes('Fetching drivers')) {
@@ -549,8 +548,8 @@
 
             } catch (error) {
                 console.error("Error fetching drivers: ", error);
-                window.showConfirmBox('Failed to fetch drivers from Firebase. Is Firestore configured and connected?', null, 'Okay');
-                drivers = []; // Clear array on failure or keep old data if you prefer
+                window.showConfirmBox('Failed to fetch drivers from Firebase. Using an empty list.', null, 'Okay');
+                drivers = [];
                 renderDrivers();
             }
         }
@@ -559,13 +558,11 @@
          * Adds a new driver to the 'drivers' collection in Firestore.
          */
         async function addDriverToFirebase(newDriver) {
-            if (!driversCollection) return;
-
             try {
                 // Data to save in Firestore, including default metrics needed for PDF report
                 const driverData = {
                     ...newDriver,
-                    daily_rides: [0, 0, 0, 0, 0, 0, 0], // Weekday rides only (7 days)
+                    daily_rides: [0, 0, 0, 0, 0, 0, 0], 
                     monthly_data: { series1: [0, 0, 0, 0, 0], series2: [0, 0, 0, 0, 0] },
                     ratings: 0.0,
                     status: 'Active',
@@ -578,7 +575,7 @@
                 // Update local array with the new driver and its Firebase ID
                 driverData.id = docRef.id;
                 drivers.push(driverData);
-                drivers.sort((a, b) => a.name.localeCompare(b.name)); // Re-sort
+                drivers.sort((a, b) => a.name.localeCompare(b.name)); 
 
                 renderDrivers();
                 window.showConfirmBox('Driver successfully added to Firebase.', null, 'Awesome!');
@@ -593,8 +590,6 @@
          * Deletes a driver from Firestore using the document ID.
          */
         window.deleteDriver = async function(driverId) {
-            if (!driversCollection) return;
-
             try {
                 // Delete the document from Firestore
                 await driversCollection.doc(driverId).delete();
@@ -611,7 +606,7 @@
             }
         }
         
-        // --- 4. PDF FUNCTIONALITY (Updated for Dynamic Data) ---
+        // --- 4. PDF FUNCTIONALITY (Remains the same) ---
 
         /**
          * Global function to download a driver's details as a PDF using jsPDF.
@@ -637,7 +632,6 @@
                 doc.setFillColor(255, 193, 7);
                 doc.setLineWidth(0.5);
                 doc.setGState(new window.jspdf.GState({ fillOpacity: 1.0 }));
-                // Use doc.path method to draw the star shape
                 doc.path(points.map(([px, py]) => [x + px, y + py]).flat(), 'f');
             };
 
@@ -648,41 +642,30 @@
             const allMetrics = [...rides.slice(0, 7), Math.round(weeklyAverage * 10) / 10]; 
             const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'W Ave.'];
             
-            // --- HEADER ---
+            // --- PDF Drawing Logic (Header, Info Boxes, Bar Chart, Averages, Ratings, Footer) ---
+            
+            // HEADER
             doc.setFillColor(34, 34, 34); 
             doc.rect(0, 0, 210, 20, 'F'); 
             doc.setFontSize(24);
             doc.setTextColor(255, 255, 255);
             doc.text('GCHatid Rider Metrics Report', 105, 12, { align: 'center' });
             
-            // --- DRIVER INFO SECTION ---
+            // DRIVER INFO SECTION
             doc.setFontSize(10);
             doc.setTextColor(50, 50, 50); 
             let yPos = 30;
 
-            // Driver Name
-            doc.text('(Driver Name)', 15, yPos); 
-            doc.line(15, yPos + 2, 100, yPos + 2); 
-            doc.setFontSize(12);
-            doc.text(driver.name, 15, yPos + 6);
-            
+            doc.text('(Driver Name)', 15, yPos); doc.line(15, yPos + 2, 100, yPos + 2); 
+            doc.setFontSize(12); doc.text(driver.name, 15, yPos + 6);
             yPos += 15;
-            // Student ID 
-            doc.setFontSize(10);
-            doc.text('(Student ID)', 15, yPos); 
-            doc.line(15, yPos + 2, 100, yPos + 2); 
-            doc.setFontSize(12);
-            doc.text(driver.studentId || 'N/A', 15, yPos + 6); 
-            
+            doc.setFontSize(10); doc.text('(Student ID)', 15, yPos); doc.line(15, yPos + 2, 100, yPos + 2); 
+            doc.setFontSize(12); doc.text(driver.studentId || 'N/A', 15, yPos + 6); 
             yPos += 15;
-            // Email 
-            doc.setFontSize(10);
-            doc.text('(Email)', 15, yPos); 
-            doc.line(15, yPos + 2, 100, yPos + 2); 
-            doc.setFontSize(12);
-            doc.text(driver.email, 15, yPos + 6);
+            doc.setFontSize(10); doc.text('(Email)', 15, yPos); doc.line(15, yPos + 2, 100, yPos + 2); 
+            doc.setFontSize(12); doc.text(driver.email, 15, yPos + 6);
 
-            // --- AGE, MOTOR TYPE, PLATE NO. BOXES ---
+            // AGE, MOTOR TYPE, PLATE NO. BOXES
             const boxStartX = 110;
             const boxStartY = 30;
             const boxWidth = 30;
@@ -690,120 +673,88 @@
             const gap = 5;
 
             // Box 1: Age
-            doc.setFillColor(220, 220, 220); 
-            doc.rect(boxStartX, boxStartY, boxWidth, boxHeight, 'F');
+            doc.setFillColor(220, 220, 220); doc.rect(boxStartX, boxStartY, boxWidth, boxHeight, 'F');
             doc.rect(boxStartX, boxStartY + boxHeight, boxWidth, boxHeight, 'S'); 
-            doc.setFontSize(10);
-            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(10); doc.setTextColor(50, 50, 50);
             doc.text('Age', boxStartX + boxWidth / 2, boxStartY + boxHeight - 7, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text(driver.age ? driver.age.toString() : 'N/A', boxStartX + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
+            doc.setFontSize(12); doc.text(driver.age ? driver.age.toString() : 'N/A', boxStartX + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
             
             // Box 2: Motor Type
             const box2X = boxStartX + boxWidth + gap;
-            doc.setFillColor(220, 220, 220);
-            doc.rect(box2X, boxStartY, boxWidth, boxHeight, 'F');
+            doc.setFillColor(220, 220, 220); doc.rect(box2X, boxStartY, boxWidth, boxHeight, 'F');
             doc.rect(box2X, boxStartY + boxHeight, boxWidth, boxHeight, 'S');
-            doc.setFontSize(10);
-            doc.text('Motor Type', box2X + boxWidth / 2, boxStartY + boxHeight - 7, { align: 'center' });
-            doc.setFontSize(8); 
-            doc.text(driver.bike, box2X + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
+            doc.setFontSize(10); doc.text('Motor Type', box2X + boxWidth / 2, boxStartY + boxHeight - 7, { align: 'center' });
+            doc.setFontSize(8); doc.text(driver.bike, box2X + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
 
             // Box 3: Plate No.
             const box3X = box2X + boxWidth + gap;
-            doc.setFillColor(220, 220, 220);
-            doc.rect(box3X, boxStartY, boxWidth, boxHeight, 'F');
+            doc.setFillColor(220, 220, 220); doc.rect(box3X, boxStartY, boxWidth, boxHeight, 'F');
             doc.rect(box3X, boxStartY + boxHeight, boxWidth, boxHeight, 'S');
-            doc.setFontSize(10);
-            doc.text('Plate No.', box3X + boxWidth / 2, boxStartY + boxHeight - 7, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text(driver.plate, box3X + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
+            doc.setFontSize(10); doc.text('Plate No.', box3X + boxWidth / 2, boxStartY + boxHeight - 7, { align: 'center' });
+            doc.setFontSize(12); doc.text(driver.plate, box3X + boxWidth / 2, boxStartY + boxHeight * 2 - 7, { align: 'center' });
             
-            // --- RIDER DATA SECTION (Bar Chart) ---
-            yPos = 110;
-            doc.setFontSize(18);
-            doc.setTextColor(50, 50, 50);
+            // RIDER DATA SECTION (Bar Chart)
+            yPos = 110; doc.setFontSize(18); doc.setTextColor(50, 50, 50);
             doc.text('Rider Data (Weekly Rides)', 105, yPos, { align: 'center' });
             
             yPos += 10;
             const barChartY = yPos;
             const barChartHeight = 40;
             const barWidth = 15;
+            let currentX = 20; doc.setDrawColor(0); doc.setFillColor(150, 150, 150); 
 
-            let currentX = 20;
-            doc.setDrawColor(0);
-            doc.setFillColor(150, 150, 150); 
-
-            // Draw the bar chart and labels
             for (let i = 0; i < allMetrics.length; i++) {
                 const metric = allMetrics[i];
                 const label = dayLabels[i];
-                const barH = (metric / 30) * barChartHeight; // Scale based on max rides (e.g., 30)
+                const barH = (metric / 30) * barChartHeight; 
                 
-                // Draw Bar
                 doc.rect(currentX, barChartY + barChartHeight - barH, barWidth, barH, 'F');
                 
-                // Draw Label (Day)
-                doc.setFontSize(10);
-                doc.setTextColor(50, 50, 50);
+                doc.setFontSize(10); doc.setTextColor(50, 50, 50);
                 doc.text(label, currentX + barWidth / 2, barChartY + barChartHeight + 5, { align: 'center' });
-
-                // Draw Value
-                doc.setFontSize(10);
-                doc.text(metric.toString(), currentX + barWidth / 2, barChartY + barChartHeight + 15, { align: 'center' });
+                doc.setFontSize(10); doc.text(metric.toString(), currentX + barWidth / 2, barChartY + barChartHeight + 15, { align: 'center' });
 
                 currentX += barWidth + 5;
             }
             
-            // --- MONTHLY ANALYSIS (Placeholder) ---
+            // MONTHLY ANALYSIS (Placeholder)
             yPos = barChartY + barChartHeight + 35; 
-            doc.setFontSize(18);
-            doc.text('Monthly Analysis', 105, yPos, { align: 'center' });
+            doc.setFontSize(18); doc.text('Monthly Analysis', 105, yPos, { align: 'center' });
             yPos += 5;
-            // Placeholder rectangle for the chart graphic
             doc.rect(20, yPos, 80, 50, 'S'); 
-            doc.setFontSize(10);
-            doc.text('Chart Placeholder', 60, yPos + 25, { align: 'center' });
+            doc.setFontSize(10); doc.text('Chart Placeholder', 60, yPos + 25, { align: 'center' });
 
 
-            // --- AVERAGES SECTION ---
+            // AVERAGES SECTION
             yPos = barChartY + barChartHeight + 35;
-            doc.setFontSize(12);
-            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(12); doc.setTextColor(50, 50, 50);
             doc.text('Daily Average: N/A', 120, yPos + 10);
             doc.text(`Weekly Average: ${Math.round(weeklyAverage * 100) / 100}`, 120, yPos + 20);
             doc.text('Monthly Average: N/A', 120, yPos + 30);
             doc.text('Yearly Average: N/A', 120, yPos + 40);
 
-            // --- DRIVER RATINGS ---
-            yPos += 60;
-            doc.setFontSize(18);
-            doc.text('Driver Ratings:', 120, yPos);
-            
+            // DRIVER RATINGS
+            yPos += 60; doc.setFontSize(18); doc.text('Driver Ratings:', 120, yPos);
             yPos += 10;
-            const starSize = 3; 
-            const maxStars = 5;
+            const starSize = 3; const maxStars = 5;
             const driverRating = driver.ratings || 0;
             const filledStars = Math.floor(driverRating);
             
             let starX = 120;
             for(let i = 0; i < maxStars; i++) {
                 if (i < filledStars) {
-                    drawStar(starX, yPos, starSize); // Draw full star
+                    drawStar(starX, yPos, starSize);
                 } else {
-                    // Draw empty star (placeholder circle for simplification)
-                    doc.setDrawColor(50, 50, 50); 
-                    doc.setFillColor(255, 255, 255); 
+                    doc.setDrawColor(50, 50, 50); doc.setFillColor(255, 255, 255); 
                     doc.setGState(new window.jspdf.GState({ fillOpacity: 0.1 })); 
                     doc.circle(starX, yPos, starSize, 'S'); 
                 }
                 starX += starSize * 3; 
             }
             
-            // --- FOOTER ---
+            // FOOTER
             yPos = 280; 
-            doc.setFontSize(10);
-            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(10); doc.setTextColor(50, 50, 50);
             doc.text('GCHatid', 105, yPos, { align: 'center' });
             doc.text('Gordon College', 105, yPos + 5, { align: 'center' });
             doc.line(75, yPos + 10, 135, yPos + 10);
@@ -814,15 +765,20 @@
             window.showConfirmBox(`PDF for ${driver.name} is being generated and downloaded.`, null, 'OK');
         }
 
-        // --- 5. CORE UI & RENDER FUNCTIONS (Slightly modified) ---
+        // --- 5. CORE UI & RENDER FUNCTIONS ---
         
         function updateDriverCountDisplay() {
             const count = drivers.length;
-            document.getElementById('current-driver-count').textContent = count;
-            document.getElementById('total-driver-count').textContent = count;
+            const currentCountElement = document.getElementById('current-driver-count');
+            const totalCountElement = document.getElementById('total-driver-count');
+
+            if (currentCountElement) currentCountElement.textContent = count;
+            if (totalCountElement) totalCountElement.textContent = count;
         }
 
         function renderDrivers() {
+            if (!driversTableBody) return;
+
             driversTableBody.innerHTML = '';
             
             drivers.forEach((driver) => {
@@ -835,9 +791,11 @@
                 
                 // Actions Cell
                 const actionsCell = row.insertCell(4); 
-                // JSON.stringify and replace is essential for passing complex object to a global function via onclick
+                // Escape quotes in JSON for safe use in onclick handler
+                const driverJson = JSON.stringify(driver).replace(/"/g, '&quot;');
+                
                 actionsCell.innerHTML = `
-                    <button class="action-btn download-btn" title="Download PDF" onclick="window.downloadDriverDetailsPDF(${JSON.stringify(driver).replace(/"/g, '&quot;')})">⬇️</button>
+                    <button class="action-btn download-btn" title="Download PDF" onclick="window.downloadDriverDetailsPDF(${driverJson})">⬇️</button>
                     <button class="action-btn delete-btn" title="Delete Driver" onclick="window.showConfirmBox('Are you sure you want to delete driver ${driver.name}?', () => window.deleteDriver('${driver.id}'), 'Delete')">🗑️</button>
                 `;
             });
@@ -846,12 +804,13 @@
         }
         
         function handleAddDriverForm() {
-            const name = document.getElementById('driverName').value.trim();
-            const age = document.getElementById('driverAge').value.trim();
-            const email = document.getElementById('driverEmail').value.trim();
-            const bike = document.getElementById('driverBikeModel').value.trim();
-            const plate = document.getElementById('driverPlateNo').value.trim();
+            const name = document.getElementById('driverName') ? document.getElementById('driverName').value.trim() : '';
+            const age = document.getElementById('driverAge') ? document.getElementById('driverAge').value.trim() : '';
+            const email = document.getElementById('driverEmail') ? document.getElementById('driverEmail').value.trim() : '';
+            const bike = document.getElementById('driverBikeModel') ? document.getElementById('driverBikeModel').value.trim() : '';
+            const plate = document.getElementById('driverPlateNo') ? document.getElementById('driverPlateNo').value.trim() : '';
 
+            // Check if ALL required fields are present
             if (name && email && bike && plate) {
                 const newDriver = { 
                     name, 
@@ -865,12 +824,13 @@
                 addDriverToFirebase(newDriver);
                 
                 // Clear form and close modal
-                document.getElementById('driverName').value = '';
-                document.getElementById('driverAge').value = '';
-                document.getElementById('driverEmail').value = '';
-                document.getElementById('driverBikeModel').value = '';
-                document.getElementById('driverPlateNo').value = '';
-                addModal.style.display = 'none';
+                if (document.getElementById('driverName')) document.getElementById('driverName').value = '';
+                if (document.getElementById('driverAge')) document.getElementById('driverAge').value = '';
+                if (document.getElementById('driverEmail')) document.getElementById('driverEmail').value = '';
+                if (document.getElementById('driverBikeModel')) document.getElementById('driverBikeModel').value = '';
+                if (document.getElementById('driverPlateNo')) document.getElementById('driverPlateNo').value = '';
+                
+                if (addModal) addModal.style.display = 'none';
             } else {
                 window.showConfirmBox('Please fill in all required fields (Name, Email, Bike Model, Plate No.).', null, 'Okay');
             }
@@ -878,12 +838,10 @@
 
         // --- 6. MODAL & INITIALIZATION ---
         
-        // This confirm box implementation should remain outside the IIFE or be declared globally, 
-        // but for completeness, it's included here.
         window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
+            // ... (Your existing showConfirmBox logic remains here) ...
             const overlay = document.getElementById('customOverlay');
             if (!overlay) {
-                 // Fallback for immediate non-DOM messages
                 console.warn(`Confirm Box: ${message}`);
                 if (typeof onConfirm === 'function' && confirm(message)) {
                     onConfirm();
@@ -891,7 +849,6 @@
                 return;
             }
             
-            // ... (Your existing showConfirmBox logic remains here) ...
             overlay.innerHTML = ''; 
             const isConfirmAction = typeof onConfirm === 'function'; 
             const title = isConfirmAction ? 'Confirm Action' : 'Notification';
@@ -939,10 +896,12 @@
             });
         }
         
-        // Run when the DOM is ready
+        // This is the FIX: Ensure the event listener is attached when the DOM is ready.
         document.addEventListener('DOMContentLoaded', () => {
             if (applyDriverBtn) {
                  applyDriverBtn.addEventListener('click', handleAddDriverForm);
+            } else {
+                 console.error("Error: applyDriverBtn not found in the DOM.");
             }
             fetchDrivers(); 
         });
