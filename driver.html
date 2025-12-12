@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page - Drivers Management</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -479,36 +484,93 @@
     
     <div id="customOverlay"></div>
 
-    <script>
+   <script>
+
+    // -------------------------------------------------------------------
+    // FIX FOR ERROR 2: window.showConfirmBox is not a function
+    // MUST BE DEFINED GLOBALLY AND FIRST, so error handlers can use it immediately.
+    // -------------------------------------------------------------------
+    window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
+        const overlay = document.getElementById('customOverlay');
+        if (!overlay) {
+            console.warn(`Confirm Box: ${message}`);
+            if (typeof onConfirm === 'function' && confirm(message)) {
+                onConfirm();
+            }
+            return;
+        }
+        
+        overlay.innerHTML = ''; 
+        const isConfirmAction = typeof onConfirm === 'function'; 
+        const title = isConfirmAction ? 'Confirm Action' : 'Notification';
+
+        const modalHtml = `
+            <div>
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div style="display:flex; justify-content:${isConfirmAction ? 'space-between' : 'center'}; gap: 10px;">
+                    ${isConfirmAction ? 
+                        `<button id="cancelBtn">${cancelText}</button>` 
+                        : ''
+                    }
+                    <button id="confirmBtn">${confirmText}</button>
+                </div>
+            </div>
+        `;
+        overlay.insertAdjacentHTML('afterbegin', modalHtml);
+        overlay.style.display = 'flex'; 
+        overlay.classList.add('visible');
+
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        const closeModal = () => {
+            overlay.classList.remove('visible');
+            setTimeout(() => overlay.style.display = 'none', 300); 
+        }
+
+        confirmBtn.addEventListener('click', () => {
+            closeModal();
+            if (isConfirmAction && onConfirm) {
+                onConfirm();
+            }
+        });
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeModal);
+        }
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+    }
+
     // Use an IIFE (Immediately Invoked Function Expression) to manage scope
     (function() {
         // --- 1. DOM REFERENCES & LOCAL DATA ---
-        // Variables needed globally within the IIFE
         const driversTableBody = document.getElementById('driversTableBody');
         const addModal = document.getElementById('addDriverModal');
-        const applyDriverBtn = document.getElementById('applyDriverBtn'); // Defined here for DOMContentLoaded access
+        const applyDriverBtn = document.getElementById('applyDriverBtn');
         let drivers = []; 
         
         // --- 2. FIREBASE CONFIGURATION & INITIALIZATION ---
 
-        // !!! IMPORTANT !!!
-        // REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL FIREBASE PROJECT CONFIGURATION
+        // !!! IMPORTANT: UPDATE THIS CONFIGURATION !!!
         const firebaseConfig = {
-            apiKey: "AIzaSyBeAfKyFcedf7z5vcPE-c9fKjpAMQyIhG4",
-            authDomain: "gchatid.firebaseapp.com",
-            databaseURL: "https://gchatid-default-rtdb.firebaseio.com",
-            projectId: "gchatid",
-            storageBucket: "gchatid.firebasestorage.app",
-            messagingSenderId: "32555305185",
-            appId: "1:32555305185:web:8a6c642eb34f1c4cde8fa0",
-            measurementId: "G-7T9YKPF5NW"
+            apiKey: "YOUR_API_KEY", 
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID", // <-- Crucial
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         let db;
         let driversCollection;
 
-        // Immediately initialize Firebase so 'db' and 'driversCollection' are ready 
-        // before the DOMContentLoaded event triggers data fetching/writing.
+        // FIX FOR ERROR 1: Firebase is now defined because we ensured the script loads in HTML head.
         try {
             const app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
@@ -517,15 +579,16 @@
         } catch (error) {
             console.error("Firebase initialization failed:", error);
             window.showConfirmBox("Error initializing Firebase. Check your configuration and network.", null, 'OK');
-            return; // Stop execution if Firebase fails to initialize
+            // Do not return here; the application should still try to run its basic functionality if possible.
         }
 
         // --- 3. FIREBASE CRUD OPERATIONS (Cloud Firestore) ---
 
-        /**
-         * Fetches all driver data from the 'drivers' collection in Firestore.
-         */
         async function fetchDrivers() {
+            if (!driversCollection) {
+                window.showConfirmBox('Firebase connection failed previously. Cannot fetch drivers.', null, 'Okay');
+                return;
+            }
             window.showConfirmBox('Fetching drivers from Firebase...', null, 'Okay');
             try {
                 const snapshot = await driversCollection.get();
@@ -554,12 +617,12 @@
             }
         }
 
-        /**
-         * Adds a new driver to the 'drivers' collection in Firestore.
-         */
         async function addDriverToFirebase(newDriver) {
+             if (!driversCollection) {
+                window.showConfirmBox('Firebase connection failed previously. Cannot add driver.', null, 'Okay');
+                return;
+            }
             try {
-                // Data to save in Firestore, including default metrics needed for PDF report
                 const driverData = {
                     ...newDriver,
                     daily_rides: [0, 0, 0, 0, 0, 0, 0], 
@@ -569,10 +632,8 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Add the document to Firestore, Firebase automatically assigns an ID
                 const docRef = await driversCollection.add(driverData);
 
-                // Update local array with the new driver and its Firebase ID
                 driverData.id = docRef.id;
                 drivers.push(driverData);
                 drivers.sort((a, b) => a.name.localeCompare(b.name)); 
@@ -582,21 +643,15 @@
 
             } catch (error) {
                 console.error("Error adding driver to Firebase: ", error);
-                window.showConfirmBox('Failed to add driver to Firebase. Check console for error.', null, 'Okay');
+                window.showConfirmBox('Failed to add driver to Firebase. Check console for error (e.g., security rules).', null, 'Okay');
             }
         }
 
-        /**
-         * Deletes a driver from Firestore using the document ID.
-         */
         window.deleteDriver = async function(driverId) {
+             if (!driversCollection) return;
             try {
-                // Delete the document from Firestore
                 await driversCollection.doc(driverId).delete();
-
-                // Update the local array
                 drivers = drivers.filter(driver => driver.id !== driverId);
-
                 renderDrivers();
                 window.showConfirmBox('Driver successfully deleted from Firebase.', null, 'Got it!');
 
@@ -606,14 +661,12 @@
             }
         }
         
-        // --- 4. PDF FUNCTIONALITY (Remains the same) ---
+        // --- 4. PDF FUNCTIONALITY (Omitted for brevity, assume correct) ---
 
-        /**
-         * Global function to download a driver's details as a PDF using jsPDF.
-         */
         window.downloadDriverDetailsPDF = function(driver) {
+             // ... (Full PDF logic from previous response goes here) ...
             if (!window.jspdf || !window.jspdf.jsPDF) {
-                window.showConfirmBox('jsPDF library not loaded. Please ensure the script tag is included.', null, 'OK');
+                window.showConfirmBox('jsPDF library not loaded.', null, 'OK');
                 return;
             }
 
@@ -635,7 +688,6 @@
                 doc.path(points.map(([px, py]) => [x + px, y + py]).flat(), 'f');
             };
 
-            // Calculate weekly average
             const rides = driver.daily_rides || [0, 0, 0, 0, 0, 0, 0];
             const totalWeeklyRides = rides.slice(0, 7).reduce((a, b) => a + b, 0);
             const weeklyAverage = totalWeeklyRides / 7;
@@ -759,11 +811,10 @@
             doc.text('Gordon College', 105, yPos + 5, { align: 'center' });
             doc.line(75, yPos + 10, 135, yPos + 10);
 
-            // Save the PDF
             doc.save(`${driver.name.replace(/\s/g, '_')}_RiderMetrics.pdf`);
-            
             window.showConfirmBox(`PDF for ${driver.name} is being generated and downloaded.`, null, 'OK');
         }
+
 
         // --- 5. CORE UI & RENDER FUNCTIONS ---
         
@@ -789,9 +840,7 @@
                 row.insertCell(2).textContent = driver.bike;     
                 row.insertCell(3).textContent = driver.plate;    
                 
-                // Actions Cell
                 const actionsCell = row.insertCell(4); 
-                // Escape quotes in JSON for safe use in onclick handler
                 const driverJson = JSON.stringify(driver).replace(/"/g, '&quot;');
                 
                 actionsCell.innerHTML = `
@@ -810,7 +859,6 @@
             const bike = document.getElementById('driverBikeModel') ? document.getElementById('driverBikeModel').value.trim() : '';
             const plate = document.getElementById('driverPlateNo') ? document.getElementById('driverPlateNo').value.trim() : '';
 
-            // Check if ALL required fields are present
             if (name && email && bike && plate) {
                 const newDriver = { 
                     name, 
@@ -823,7 +871,6 @@
                 
                 addDriverToFirebase(newDriver);
                 
-                // Clear form and close modal
                 if (document.getElementById('driverName')) document.getElementById('driverName').value = '';
                 if (document.getElementById('driverAge')) document.getElementById('driverAge').value = '';
                 if (document.getElementById('driverEmail')) document.getElementById('driverEmail').value = '';
@@ -836,74 +883,18 @@
             }
         }
 
-        // --- 6. MODAL & INITIALIZATION ---
+        // --- 6. INITIALIZATION ---
         
-        window.showConfirmBox = function(message, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel') {
-            // ... (Your existing showConfirmBox logic remains here) ...
-            const overlay = document.getElementById('customOverlay');
-            if (!overlay) {
-                console.warn(`Confirm Box: ${message}`);
-                if (typeof onConfirm === 'function' && confirm(message)) {
-                    onConfirm();
-                }
-                return;
-            }
-            
-            overlay.innerHTML = ''; 
-            const isConfirmAction = typeof onConfirm === 'function'; 
-            const title = isConfirmAction ? 'Confirm Action' : 'Notification';
-
-            const modalHtml = `
-                <div>
-                    <h3>${title}</h3>
-                    <p>${message}</p>
-                    <div style="display:flex; justify-content:${isConfirmAction ? 'space-between' : 'center'}; gap: 10px;">
-                        ${isConfirmAction ? 
-                            `<button id="cancelBtn">${cancelText}</button>` 
-                            : ''
-                        }
-                        <button id="confirmBtn">${confirmText}</button>
-                    </div>
-                </div>
-            `;
-            overlay.insertAdjacentHTML('afterbegin', modalHtml);
-            overlay.style.display = 'flex'; 
-            overlay.classList.add('visible');
-
-            const confirmBtn = document.getElementById('confirmBtn');
-            const cancelBtn = document.getElementById('cancelBtn');
-
-            const closeModal = () => {
-                overlay.classList.remove('visible');
-                setTimeout(() => overlay.style.display = 'none', 300); 
-            }
-
-            confirmBtn.addEventListener('click', () => {
-                closeModal();
-                if (isConfirmAction && onConfirm) {
-                    onConfirm();
-                }
-            });
-
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', closeModal);
-            }
-            
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    closeModal();
-                }
-            });
-        }
-        
-        // This is the FIX: Ensure the event listener is attached when the DOM is ready.
         document.addEventListener('DOMContentLoaded', () => {
             if (applyDriverBtn) {
                  applyDriverBtn.addEventListener('click', handleAddDriverForm);
-            } else {
-                 console.error("Error: applyDriverBtn not found in the DOM.");
             }
-            fetchDrivers(); 
+            // Check if Firebase was initialized successfully before trying to fetch data
+            if (driversCollection) {
+                fetchDrivers();
+            } else {
+                window.showConfirmBox("Database not connected. Please check Firebase config and ensure scripts are loaded.", null, 'OK');
+            }
         });
         
     })(); // End of IIFE
